@@ -36,4 +36,4 @@ CACHE_DIR = Path.home() / ".spotigui"
 CACHE_DIR.mkdir(exist_ok=True)
 
 # Default number of playlists to display on home screen
-DEFAULT_PLAYLISTS_COUNT = 6
+DEFAULT_PLAYLISTS_COUNT = 2

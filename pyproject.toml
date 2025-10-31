@@ -30,7 +30,7 @@ classifiers = [
 
 dependencies = [
     "kivy>=2.3.0",
-    "kivymd>=0.104.2",
+    "KivyMD @ https://github.com/kivymd/KivyMD/archive/master.zip",
     "spotipy>=2.23.0",
     "python-dotenv>=1.0.0",
 ]
