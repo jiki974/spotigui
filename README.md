@@ -1,2 +1,2 @@
 # spotigui
-A multiplatform spotify client
+A multiplatform spotify client to control any spotify devices
