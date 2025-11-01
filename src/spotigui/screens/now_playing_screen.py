@@ -8,6 +8,7 @@ from kivy.uix.image import AsyncImage
 from spotigui.widgets.playback_controls import PlaybackControlsWidget
 from spotigui.widgets.progress_bar import ProgressBarWidget
 from spotigui.widgets.topbar import TopBarWidget
+from spotigui.widgets.volume_sheet import VolumeControlWidget
 
 
 class NowPlayingScreen(MDScreen):
@@ -101,19 +102,24 @@ class NowPlayingScreen(MDScreen):
             on_pause=self._on_pause,
             on_next=self._on_next,
             on_previous=self._on_previous,
-            on_volume_change=self._on_volume_change,
-            on_mute_toggle=self._on_mute_toggle,
+            on_volume_click=self._show_volume_sheet,
         )
         main_layout.add_widget(self.playback_controls)
 
-                # Progress bar section
+        # Progress bar section
         self.progress_bar = ProgressBarWidget()
 
         main_layout.add_widget(self.progress_bar)
 
         self.add_widget(main_layout)
 
-    def _on_image_load(self, instance):
+        # Store volume widget reference (will be shown as modal)
+        self.volume_widget = VolumeControlWidget(
+            on_volume_change=self._on_volume_change,
+            on_mute_toggle=self._on_mute_toggle,
+        )
+
+    def _on_image_load(self, _instance):
         """Handle image load event."""
         # This can be used for custom loading handling if needed
         pass
@@ -221,6 +227,15 @@ class NowPlayingScreen(MDScreen):
         """Handle previous track action."""
         if self.on_previous_callback:
             self.on_previous_callback()
+
+    def _show_volume_sheet(self):
+        """Show the volume control bottom sheet."""
+        from kivymd.uix.bottomsheet import MDBottomSheet
+
+        # Create bottom sheet each time (KivyMD best practice)
+        bottom_sheet = MDBottomSheet()
+        bottom_sheet.add_widget(self.volume_widget)
+        bottom_sheet.status="opened"
 
     def _on_volume_change(self, volume: int):
         """Handle volume change."""

@@ -4,7 +4,6 @@ from typing import Optional, Callable, List, Dict, Any
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.scrollview import MDScrollView
-from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.label import MDLabel
 
 from spotigui.widgets.playlist_tile import PlaylistTile
@@ -42,56 +41,53 @@ class HomeScreen(MDScreen):
              text="Your Playlists",
              size_hint_y=None,
              height="60dp",
-             halign="left",
-            padding=("10dp", "10dp")
+             halign="left"
          )
         main_layout.add_widget(title_label)
 
-        # Playlists section (scrollable grid)
+        # Playlists section (scrollable list with card spacing)
         scroll_view = MDScrollView(size_hint=(1, 1))
-        self.playlists_grid = MDGridLayout(
-            cols=2,
-            spacing="100dp",
+        self.playlists_list = MDBoxLayout(
+            orientation="vertical",
+            spacing="15dp",
             size_hint_y=None,
-            padding="5dp",
+            padding="10dp",
         )
-        self.playlists_grid.bind(minimum_height=self.playlists_grid.setter("height"))
+        self.playlists_list.bind(minimum_height=self.playlists_list.setter("height"))
 
-        scroll_view.add_widget(self.playlists_grid)
+        scroll_view.add_widget(self.playlists_list)
         main_layout.add_widget(scroll_view)
 
         self.add_widget(main_layout)
 
     def add_playlists(self, playlists: List[Dict[str, Any]]):
         """
-        Add playlists to the grid.
+        Add playlists to the list.
 
         Args:
             playlists: List of playlist dictionaries from Spotify API
         """
-        self.playlists_grid.clear_widgets()
+        self.playlists_list.clear_widgets()
 
         for playlist in playlists:
             tile = PlaylistTile(
                 playlist_data=playlist,
                 on_select=self._on_playlist_select,
                 size_hint_y=None,
-                height="180dp",
+                height="100dp"
             )
-            self.playlists_grid.add_widget(tile)
+            self.playlists_list.add_widget(tile)
 
     def show_loading(self):
         """Show loading indicator while fetching playlists."""
-        self.playlists_grid.clear_widgets()
-        loading_layout = MDBoxLayout(orientation="vertical", padding="20dp", spacing="10dp")
+        self.playlists_list.clear_widgets()
         loading_label = MDLabel(
             text="Loading playlists...",
             size_hint_y=None,
             height="50dp",
             halign="center",
         )
-        loading_layout.add_widget(loading_label)
-        self.playlists_grid.add_widget(loading_layout)
+        self.playlists_list.add_widget(loading_label)
 
     def _on_playlist_select(self, playlist_data: Dict[str, Any]):
         """Handle playlist selection."""

@@ -3,17 +3,14 @@
 from typing import Optional, Callable
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDIconButton
-from kivymd.uix.slider import MDSlider
 from kivy.uix.anchorlayout import AnchorLayout
-from kivy.properties import BooleanProperty, NumericProperty
+from kivy.properties import BooleanProperty
 
 
 class PlaybackControlsWidget(MDBoxLayout):
-    """Widget containing playback controls and volume slider."""
+    """Widget containing playback controls."""
 
     is_playing = BooleanProperty(False)
-    volume_level = NumericProperty(50)
-    is_muted = BooleanProperty(False)
 
     def __init__(
         self,
@@ -21,8 +18,7 @@ class PlaybackControlsWidget(MDBoxLayout):
         on_pause: Optional[Callable] = None,
         on_next: Optional[Callable] = None,
         on_previous: Optional[Callable] = None,
-        on_volume_change: Optional[Callable] = None,
-        on_mute_toggle: Optional[Callable] = None,
+        on_volume_click: Optional[Callable] = None,
         **kwargs
     ):
         """
@@ -33,29 +29,43 @@ class PlaybackControlsWidget(MDBoxLayout):
             on_pause: Callback when pause is pressed
             on_next: Callback when next is pressed
             on_previous: Callback when previous is pressed
-            on_volume_change: Callback when volume changes
-            on_mute_toggle: Callback when mute is toggled
+            on_volume_click: Callback when volume button is pressed
         """
         super().__init__(**kwargs)
         self.orientation = "vertical"
         self.spacing = "10dp"
         self.padding = "10dp"
         self.size_hint_y = None
-        self.height = "64dp"
+        self.height = "100dp"
 
         self.on_play_callback = on_play
         self.on_pause_callback = on_pause
         self.on_next_callback = on_next
         self.on_previous_callback = on_previous
-        self.on_volume_change_callback = on_volume_change
-        self.on_mute_toggle_callback = on_mute_toggle
+        self.on_volume_click_callback = on_volume_click
 
         # Main control buttons layout
         buttons_layout = MDBoxLayout(
             orientation = "horizontal",
             spacing="5dp",
-            size_hint_y=0.3,
+            size_hint_y=1,
         )
+
+        # Volume button container
+        volume_container = AnchorLayout(
+            anchor_x="center",
+            anchor_y="center",
+            size_hint_x=0.2
+        )
+        self.volume_btn = MDIconButton(
+            icon="volume-high",
+            font_size="32sp",
+            size_hint=(None, None),
+            size=("48dp", "48dp")
+        )
+        self.volume_btn.bind(on_press=self._on_volume_click)
+        volume_container.add_widget(self.volume_btn)
+        #buttons_layout.add_widget(volume_container)
 
         # Previous button container
         prev_container = AnchorLayout(
@@ -107,36 +117,6 @@ class PlaybackControlsWidget(MDBoxLayout):
 
         self.add_widget(buttons_layout)
 
-        # Volume control layout
-        volume_layout = MDBoxLayout(size_hint_y=0.15)
-
-        # Mute button container
-        mute_container = AnchorLayout(
-            anchor_x="center",
-            anchor_y="center",
-            size_hint_x=0.15
-        )
-        self.mute_btn = MDIconButton(
-            icon="volume-high",
-            font_size="24sp",
-            size_hint=(None, None),
-            size=("48dp", "48dp")
-        )
-        self.mute_btn.bind(on_press=self._on_mute_toggle)
-        mute_container.add_widget(self.mute_btn)
-        volume_layout.add_widget(mute_container)
-
-        # Volume slider
-        self.volume_slider = MDSlider(
-            min=0,
-            max=100,
-            value=self.volume_level,
-        )
-        self.volume_slider.bind(value=self._on_volume_change)
-        volume_layout.add_widget(self.volume_slider)
-
-        #self.add_widget(volume_layout)
-
     def _on_play_pause(self, _instance):
         """Handle play/pause button press."""
         if self.is_playing:
@@ -160,25 +140,10 @@ class PlaybackControlsWidget(MDBoxLayout):
         if self.on_previous_callback:
             self.on_previous_callback()
 
-    def _on_volume_change(self, _slider, value):
-        """Handle volume slider change."""
-        self.volume_level = int(value)
-        self.is_muted = False
-        self.mute_btn.icon = "volume-high"
-        if self.on_volume_change_callback:
-            self.on_volume_change_callback(int(value))
-
-    def _on_mute_toggle(self, _instance):
-        """Handle mute button press."""
-        self.is_muted = not self.is_muted
-        if self.is_muted:
-            self.mute_btn.icon = "volume-mute"
-            if self.on_mute_toggle_callback:
-                self.on_mute_toggle_callback(True)
-        else:
-            self.mute_btn.icon = "volume-high"
-            if self.on_mute_toggle_callback:
-                self.on_mute_toggle_callback(False)
+    def _on_volume_click(self, _instance):
+        """Handle volume button press."""
+        if self.on_volume_click_callback:
+            self.on_volume_click_callback()
 
     def set_playing_state(self, is_playing: bool):
         """Update the playing state UI."""

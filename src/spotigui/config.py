@@ -36,4 +36,9 @@ CACHE_DIR = Path.home() / ".spotigui"
 CACHE_DIR.mkdir(exist_ok=True)
 
 # Default number of playlists to display on home screen
-DEFAULT_PLAYLISTS_COUNT = 2
+DEFAULT_PLAYLISTS_COUNT = 10
+
+# Default device to control (device name to match)
+# Set this to the name of your preferred Spotify device
+# If empty or None, will use the first available device
+DEFAULT_DEVICE_NAME = os.getenv("DEFAULT_DEVICE_NAME", "")

@@ -11,7 +11,7 @@ from kivy.clock import Clock, mainthread
 from kivymd.app import MDApp
 from kivymd.uix.screenmanager import MDScreenManager
 
-from spotigui.config import WINDOW_WIDTH, WINDOW_HEIGHT, APP_NAME, DEFAULT_PLAYLISTS_COUNT
+from spotigui.config import WINDOW_WIDTH, WINDOW_HEIGHT, APP_NAME, DEFAULT_PLAYLISTS_COUNT, DEFAULT_DEVICE_NAME
 from spotigui.spotify_api import SpotifyAPI
 from spotigui.screens.home_screen import HomeScreen
 from spotigui.screens.now_playing_screen import NowPlayingScreen
@@ -55,7 +55,7 @@ class SpotiGuiApp(MDApp):
         self.home_screen = HomeScreen(
             on_playlist_select=self._on_playlist_select,
         )
-        # self.screen_manager.add_widget(self.home_screen)
+        self.screen_manager.add_widget(self.home_screen)
 
         # Create and add now playing screen
         self.now_playing_screen = NowPlayingScreen(
@@ -71,6 +71,9 @@ class SpotiGuiApp(MDApp):
         )
         self.screen_manager.add_widget(self.now_playing_screen)
 
+        # Set home screen as default
+        self.screen_manager.current = "home"
+
         return self.screen_manager
 
     def on_start(self):
@@ -85,10 +88,10 @@ class SpotiGuiApp(MDApp):
             # Fetch initial playlists (schedule on main thread)
             self._load_playlists_trigger()
 
-            # Get available devices
+            # Get available devices and select the default one
             devices = self.spotify_api.get_available_devices()
             if devices:
-                self.current_device_id = devices[0].get("id")
+                self.current_device_id = self._select_default_device(devices)
 
             # Start polling for playback state
             self.stop_polling = False
@@ -97,9 +100,41 @@ class SpotiGuiApp(MDApp):
             )
             self.playback_poll_thread.start()
         else:
-            Logger.error("SpotiGUI", "Failed to authenticate with Spotify")
+            Logger.error("SpotiGUI: Failed to authenticate with Spotify")
 
-    def _load_playlists(self, dt=None):
+    def _select_default_device(self, devices):
+        """
+        Select the default device based on configuration.
+
+        Args:
+            devices: List of available Spotify devices
+
+        Returns:
+            Device ID of the selected device
+        """
+        if not devices:
+            Logger.warning("SpotiGUI: No devices available")
+            return None
+
+        # If default device name is configured, try to find it
+        if DEFAULT_DEVICE_NAME:
+            for device in devices:
+                device_name = device.get("name", "")
+                if device_name.lower() == DEFAULT_DEVICE_NAME.lower():
+                    device_id = device.get("id")
+                    Logger.info(f"SpotiGUI: Selected default device: {device_name} (ID: {device_id})")
+                    return device_id
+
+            Logger.warning(f"SpotiGUI: Default device '{DEFAULT_DEVICE_NAME}' not found. Using first available device.")
+
+        # Fallback to first available device
+        first_device = devices[0]
+        device_name = first_device.get("name", "Unknown")
+        device_id = first_device.get("id")
+        Logger.info(f"SpotiGUI: Using first available device: {device_name} (ID: {device_id})")
+        return device_id
+
+    def _load_playlists(self, _dt=None):
         """Load user playlists and display them."""
         self.home_screen.show_loading()
 
@@ -134,7 +169,7 @@ class SpotiGuiApp(MDApp):
 
                 time.sleep(1)  # Poll every second
             except Exception as e:
-                Logger.error("SpotiGUI", f"Playback polling error: {e}")
+                Logger.error(f"SpotiGUI: Playback polling error: {e}")
                 time.sleep(2)
 
     @mainthread
@@ -147,7 +182,7 @@ class SpotiGuiApp(MDApp):
             self.now_playing_screen.update_track_info(track_data)
 
     @mainthread
-    def _update_track_info(self, dt=None):
+    def _update_track_info(self, _dt=None):
         """Update track info on now playing screen (runs on main thread)."""
         playback = self.spotify_api.get_current_playback()
         if playback:

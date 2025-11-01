@@ -127,7 +127,7 @@ class TopBarWidget(MDBoxLayout):
         if not self.device_menu:
             self.device_menu = MDDropdownMenu(
                 items=menu_items,
-                width_mult=4,
+                max_height="200dp",
             )
         else:
             self.device_menu.items = menu_items

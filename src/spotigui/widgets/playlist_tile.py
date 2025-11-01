@@ -5,7 +5,8 @@ from kivymd.uix.card import MDCard
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.label import MDLabel
 from kivy.uix.image import AsyncImage
-from kivy.properties import  ObjectProperty, DictProperty
+from kivy.properties import ObjectProperty, DictProperty
+from kivy.logger import Logger
 
 
 class PlaylistTile(MDCard):
@@ -25,72 +26,111 @@ class PlaylistTile(MDCard):
         super().__init__(**kwargs)
         self.playlist_data = playlist_data
         self.on_playlist_select = on_select
-        self.orientation = "vertical"
-        self.padding = "10dp"
-        self.spacing = "10dp"
-        self.size_hint = (1, 1)
-        self.elevation = 2
-        self.radius = "10dp"
+        self.orientation = "horizontal"
+        self.padding = "15dp"
+        self.spacing = "15dp"
+        self.size_hint = (1, None)
+        self.elevation = 4
+        self.radius = [15, 15, 15, 15]
+        self.ripple_behavior = True
+        self.md_bg_color = (1, 1, 1, 1)  # White background
+        self.style = "elevated"
 
         # Create layout for tile content
-        content_layout = MDBoxLayout(orientation="vertical", spacing="5dp")
+        content_layout = MDBoxLayout(orientation="horizontal", spacing="15dp")
 
         # Add playlist cover image if available
         images = playlist_data.get("images", [])
+        Logger.info(f"PlaylistTile: Playlist '{playlist_data.get('name', 'Unknown')}' has {len(images)} images")
+
         if images and len(images) > 0:
-            image_url = images[0].get("url", "")
+            # Try to get the URL, handling both dict and direct URL cases
+            image_url = images[0] if isinstance(images[0], str) else images[0].get("url", "")
+            Logger.info(f"PlaylistTile: Image URL: {image_url[:50] if image_url else 'None'}...")
+
             if image_url:
+                # Create a container for the image with rounded corners effect
+                image_container = MDBoxLayout(
+                    size_hint=(None, None),
+                    size=("70dp", "70dp")
+                )
                 image = AsyncImage(
                     source=image_url,
-                    size_hint=(1, None),
-                    height="200dp",
-                    width="200dp",
+                    size_hint=(None, None),
+                    size=("70dp", "70dp"),
+                    allow_stretch=True,
+                    keep_ratio=True,
+                    mipmap=True,
+                    nocache=False
                 )
-                content_layout.add_widget(image)
+                image_container.add_widget(image)
+                content_layout.add_widget(image_container)
             else:
-                # Placeholder if no image URL
+                Logger.warning("PlaylistTile: No valid image URL found")
+                # Placeholder if no image URL with background
+                placeholder_container = MDBoxLayout(
+                    size_hint=(None, None),
+                    size=("70dp", "70dp"),
+                    md_bg_color=(0.95, 0.95, 0.95, 1)
+                )
                 placeholder = MDLabel(
                     text="♫",
-                    size_hint=(1, None),
-                    height="120dp",
                     halign="center",
                     valign="center",
-                    font_size="48sp",
+                    font_size="36sp",
                 )
-                content_layout.add_widget(placeholder)
+                placeholder_container.add_widget(placeholder)
+                content_layout.add_widget(placeholder_container)
         else:
-            # Placeholder if no images
+            Logger.info("PlaylistTile: No images array found")
+            # Placeholder if no images with background
+            placeholder_container = MDBoxLayout(
+                size_hint=(None, None),
+                size=("70dp", "70dp"),
+                md_bg_color=(0.95, 0.95, 0.95, 1)
+            )
             placeholder = MDLabel(
                 text="♫",
-                size_hint=(1, None),
-                height="120dp",
                 halign="center",
                 valign="center",
-                font_size="48sp",
+                font_size="36sp",
             )
-            content_layout.add_widget(placeholder)
+            placeholder_container.add_widget(placeholder)
+            content_layout.add_widget(placeholder_container)
 
-        # Add playlist name
+        # Add playlist info (name and optional track count)
+        info_layout = MDBoxLayout(
+            orientation="vertical",
+            spacing="5dp"
+        )
+
         playlist_name = playlist_data.get("name", "Unknown Playlist")
         name_label = MDLabel(
             text=playlist_name,
-            size_hint_y=0.2,
+            size_hint_y=None,
+            height="30dp",
             bold=True,
-            halign="center",
+            halign="left",
+            valign="center",
+            font_size="16sp",
         )
-        content_layout.add_widget(name_label)
+        info_layout.add_widget(name_label)
 
-        # Add playlist description or track count if available
+        # Add track count as subtitle
         track_count = playlist_data.get("tracks", {}).get("total", 0)
         if track_count:
-            info_text = f"{track_count} tracks"
-            info_label = MDLabel(
-                text=info_text,
-                size_hint_y=0.1,
-                halign="center",
-                font_size="10sp",
+            subtitle = MDLabel(
+                text=f"{track_count} tracks",
+                size_hint_y=None,
+                height="20dp",
+                halign="left",
+                valign="center",
+                font_size="12sp",
+                theme_text_color="Secondary"
             )
-            content_layout.add_widget(info_label)
+            info_layout.add_widget(subtitle)
+
+        content_layout.add_widget(info_layout)
 
         self.add_widget(content_layout)
 
