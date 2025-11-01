@@ -29,17 +29,20 @@
             AsyncImage:
                 id: album_art
                 source: ""
-                loading_image: 'data/images/transparent.png'
                 size_hint: 1, 1
                 fit_mode: "cover"
                 pos_hint: {"center_x": 0.5, "center_y": 0.5}
                 allow_stretch: True
                 nocache: False
                 mipmap: True
-                on_load: 
+                anim_delay: -1
+                opacity: 0
+                on_load:
+                    self.opacity = 1
                     spinner.stop()
                     spinner.opacity = 0
                 on_source:
+                    self.opacity = 0
                     spinner.opacity = 1
                     spinner.start()
 
