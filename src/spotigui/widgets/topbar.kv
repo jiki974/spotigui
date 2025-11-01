@@ -4,10 +4,13 @@
     size_hint_y: None
     height: "36dp"
 
-    # Left side container
-    BoxLayout:
-        id: left_container
-        size_hint_x: 0.15
+    # Left side with back button
+    MDIconButton:
+        id: back_btn
+        icon: "arrow-left"
+        font_size: "32sp"
+        pos_hint: {"center_y": 0.5}
+        on_press: root._on_back(self)
 
     # Track name label (center)
     MDLabel:
@@ -16,9 +19,12 @@
         halign: "center"
         valign: "center"
         size_hint_x: 0.7
-        font_size: "18sp"
+        font_size: "32sp"
 
-    # Right side container
-    BoxLayout:
-        id: right_container
-        size_hint_x: 0.15
+    # Right side  with device button
+    MDIconButton:
+        id: device_btn
+        icon: "cast"
+        font_size: "32sp"
+        pos_hint: {"center_y": 0.5}
+        on_press: root._on_device_button_press(self)

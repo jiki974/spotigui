@@ -2,7 +2,6 @@
 
 from typing import Optional, Callable, List, Dict, Any
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDIconButton
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.menu.menu import MDDropdownTextItem  # Explicitly import to register
 from kivy.lang import Builder
@@ -16,8 +15,6 @@ class TopBarWidget(MDBoxLayout):
 
     def __init__(
         self,
-        show_back_button: bool = True,
-        show_device_button: bool = True,
         on_back: Optional[Callable] = None,
         on_device_select: Optional[Callable] = None,
         on_device_refresh: Optional[Callable] = None,
@@ -27,8 +24,6 @@ class TopBarWidget(MDBoxLayout):
         Initialize top bar widget.
 
         Args:
-            show_back_button: Whether to show the back button
-            show_device_button: Whether to show the device button
             on_back: Callback when back button is pressed
             on_device_select: Callback when device is selected (device_id)
             on_device_refresh: Callback to refresh available devices
@@ -39,38 +34,9 @@ class TopBarWidget(MDBoxLayout):
         self.on_device_select_callback = on_device_select
         self.on_device_refresh_callback = on_device_refresh
 
-        # Store initialization flags
-        self.show_back_button = show_back_button
-        self.show_device_button = show_device_button
-
         # Menu for device selection
         self.device_menu = None
         self.current_devices = []
-        self.device_btn = None
-
-    def on_kv_post(self, base_widget):
-        """Called after the KV file has been applied."""
-        super().on_kv_post(base_widget)
-
-        # Add back button if needed
-        if self.show_back_button:
-            back_btn = MDIconButton(
-                icon="arrow-left",
-                font_size="24sp",
-                pos_hint={"center_y": 0.5}
-            )
-            back_btn.bind(on_press=self._on_back)
-            self.ids.left_container.add_widget(back_btn)
-
-        # Add device button if needed
-        if self.show_device_button:
-            self.device_btn = MDIconButton(
-                icon="cast",
-                font_size="24sp",
-                pos_hint={"center_y": 0.5}
-            )
-            self.device_btn.bind(on_press=self._on_device_button_press)
-            self.ids.right_container.add_widget(self.device_btn)
 
     def set_track_name(self, track_name: str):
         """Update the track name text."""
@@ -90,7 +56,7 @@ class TopBarWidget(MDBoxLayout):
                 self.update_device_menu(devices)
                 # Set caller and open menu
                 if self.device_menu:
-                    self.device_menu.caller = self.device_btn
+                    self.device_menu.caller = self.ids.device_btn
                     self.device_menu.open()
 
     def update_device_menu(self, devices: List[Dict[str, Any]]):
