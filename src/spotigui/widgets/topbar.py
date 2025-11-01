@@ -5,6 +5,7 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.menu.menu import MDDropdownTextItem  # Explicitly import to register
 from kivy.lang import Builder
+from kivy.properties import StringProperty
 
 # Load the KV file
 Builder.load_file("src/spotigui/widgets/topbar.kv")
@@ -13,8 +14,11 @@ Builder.load_file("src/spotigui/widgets/topbar.kv")
 class TopBarWidget(MDBoxLayout):
     """Top bar widget containing navigation, title, and device controls."""
 
+    back_button_icon = StringProperty("arrow-left")
+
     def __init__(
         self,
+        back_button_icon: str = "arrow-left",
         on_back: Optional[Callable] = None,
         on_device_select: Optional[Callable] = None,
         on_device_refresh: Optional[Callable] = None,
@@ -24,12 +28,14 @@ class TopBarWidget(MDBoxLayout):
         Initialize top bar widget.
 
         Args:
+            back_button_icon: Icon to show on the back button (default: "arrow-left")
             on_back: Callback when back button is pressed
             on_device_select: Callback when device is selected (device_id)
             on_device_refresh: Callback to refresh available devices
         """
         super().__init__(**kwargs)
 
+        self.back_button_icon = back_button_icon
         self.on_back_callback = on_back
         self.on_device_select_callback = on_device_select
         self.on_device_refresh_callback = on_device_refresh

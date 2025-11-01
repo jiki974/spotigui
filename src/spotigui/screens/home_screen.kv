@@ -1,17 +1,24 @@
+#:import TopBarWidget spotigui.widgets.topbar.TopBarWidget
+
 <HomeScreen>:
     name: "home"
 
     MDBoxLayout:
         orientation: "vertical"
-        spacing: "10dp"
-        padding: "10dp"
+        spacing: "5dp"
+        padding: "5dp"
         md_bg_color: 1, 1, 1, 1
+
+        TopBarWidget:
+            id: top_bar
+            back_button_icon: "music-note"
 
         MDLabel:
             text: "Your Playlists"
             size_hint_y: None
             height: "60dp"
             halign: "left"
+            padding: "10dp", "0dp"
 
         MDScrollView:
             size_hint: 1, 1

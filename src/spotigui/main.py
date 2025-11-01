@@ -54,6 +54,9 @@ class SpotiGuiApp(MDApp):
         # Create and add home screen (playlists)
         self.home_screen = HomeScreen(
             on_playlist_select=self._on_playlist_select,
+            on_navigate_to_now_playing=self._on_navigate_to_now_playing,
+            on_device_select=self._on_device_select,
+            on_device_refresh=self._on_device_refresh,
         )
         self.screen_manager.add_widget(self.home_screen)
 
@@ -261,6 +264,10 @@ class SpotiGuiApp(MDApp):
 
             # Navigate to now playing screen
             self.screen_manager.current = "now_playing"
+
+    def _on_navigate_to_now_playing(self):
+        """Handle navigation to now playing screen from home."""
+        self.screen_manager.current = "now_playing"
 
     def _on_back_to_playlists(self):
         """Handle navigation back to playlists screen."""

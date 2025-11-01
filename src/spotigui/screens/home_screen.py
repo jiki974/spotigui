@@ -18,6 +18,9 @@ class HomeScreen(MDScreen):
     def __init__(
         self,
         on_playlist_select: Optional[Callable] = None,
+        on_navigate_to_now_playing: Optional[Callable] = None,
+        on_device_select: Optional[Callable] = None,
+        on_device_refresh: Optional[Callable] = None,
         **kwargs
     ):
         """
@@ -25,10 +28,41 @@ class HomeScreen(MDScreen):
 
         Args:
             on_playlist_select: Callback when playlist is selected
+            on_navigate_to_now_playing: Callback to navigate to now playing screen
+            on_device_select: Callback when device is selected
+            on_device_refresh: Callback to refresh device list
         """
         super().__init__(**kwargs)
 
         self.on_playlist_select_callback = on_playlist_select
+        self.on_navigate_to_now_playing_callback = on_navigate_to_now_playing
+        self.on_device_select_callback = on_device_select
+        self.on_device_refresh_callback = on_device_refresh
+
+    def on_kv_post(self, base_widget):
+        """Called after the KV file has been applied."""
+        super().on_kv_post(base_widget)
+
+        # Set up top bar callbacks
+        self.ids.top_bar.on_back_callback = self._on_navigate_to_now_playing
+        self.ids.top_bar.on_device_select_callback = self._on_device_select
+        self.ids.top_bar.on_device_refresh_callback = self._on_device_refresh
+
+    def _on_navigate_to_now_playing(self):
+        """Handle navigation to now playing screen."""
+        if self.on_navigate_to_now_playing_callback:
+            self.on_navigate_to_now_playing_callback()
+
+    def _on_device_select(self, device_id: str):
+        """Handle device selection."""
+        if self.on_device_select_callback:
+            self.on_device_select_callback(device_id)
+
+    def _on_device_refresh(self):
+        """Handle device refresh request."""
+        if self.on_device_refresh_callback:
+            return self.on_device_refresh_callback()
+        return []
 
     def add_playlists(self, playlists: List[Dict[str, Any]]):
         """
