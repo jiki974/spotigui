@@ -2,13 +2,12 @@
 
 from typing import Optional, Callable, Dict, Any
 from kivymd.uix.screen import MDScreen
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivy.uix.image import AsyncImage
+from kivy.lang import Builder
 
-from spotigui.widgets.playback_controls import PlaybackControlsWidget
-from spotigui.widgets.progress_bar import ProgressBarWidget
-from spotigui.widgets.topbar import TopBarWidget
 from spotigui.widgets.volume_sheet import VolumeControlWidget
+
+# Load the KV file
+Builder.load_file("src/spotigui/screens/now_playing_screen.kv")
 
 
 class NowPlayingScreen(MDScreen):
@@ -42,8 +41,6 @@ class NowPlayingScreen(MDScreen):
             on_back_to_playlists: Callback to navigate back to playlists
         """
         super().__init__(**kwargs)
-        self.name = "now_playing"
-        self.md_bg_color = (1, 1, 1, 1)  # White background
 
         self.on_play_callback = on_play
         self.on_pause_callback = on_pause
@@ -59,65 +56,31 @@ class NowPlayingScreen(MDScreen):
         self.touch_start_pos = {}
         self.min_swipe_distance = 50
 
-        # Create main layout
-        main_layout = MDBoxLayout(
-            orientation="vertical",
-            spacing="5dp",
-            padding="5dp",
-            md_bg_color=(1, 1, 1, 1)
-        )
-
-        # Top bar with back button and device selector
-        self.top_bar = TopBarWidget(
-            show_back_button=True,
-            show_device_button=True,
-            on_back=self._on_back,
-            on_device_select=self._on_device_select,
-            on_device_refresh=self._on_device_refresh,
-        )
-        main_layout.add_widget(self.top_bar)
-
-        # Album art section
-        album_art_container = MDBoxLayout(
-            height = "480dp",
-        )
-
-        self.album_art = AsyncImage(
-            source="",
-            size_hint=(1, 1),
-            fit_mode="contain",
-            pos_hint={"center_x": 0.5, "center_y": 0.5},
-            allow_stretch=True,
-            nocache=False,
-            mipmap=True
-        )
-        # Bind to loading events to hide the default loading icon
-        self.album_art.bind(on_load=self._on_image_load)
-        album_art_container.add_widget(self.album_art)
-        main_layout.add_widget(album_art_container)
-
-        # Playback controls section
-        self.playback_controls = PlaybackControlsWidget(
-            on_play=self._on_play,
-            on_pause=self._on_pause,
-            on_next=self._on_next,
-            on_previous=self._on_previous,
-            on_volume_click=self._show_volume_sheet,
-        )
-        main_layout.add_widget(self.playback_controls)
-
-        # Progress bar section
-        self.progress_bar = ProgressBarWidget()
-
-        main_layout.add_widget(self.progress_bar)
-
-        self.add_widget(main_layout)
-
         # Store volume widget reference (will be shown as modal)
         self.volume_widget = VolumeControlWidget(
             on_volume_change=self._on_volume_change,
             on_mute_toggle=self._on_mute_toggle,
         )
+
+    def on_kv_post(self, base_widget):
+        """Called after the KV file has been applied."""
+        super().on_kv_post(base_widget)
+
+        # Set up top bar callbacks after widgets are created
+        self.ids.top_bar.on_back_callback = self._on_back
+        self.ids.top_bar.on_device_select_callback = self._on_device_select
+        self.ids.top_bar.on_device_refresh_callback = self._on_device_refresh
+
+        # Set up playback controls callbacks
+        self.ids.playback_controls.on_play_callback = self._on_play
+        self.ids.playback_controls.on_pause_callback = self._on_pause
+        self.ids.playback_controls.on_next_callback = self._on_next
+        self.ids.playback_controls.on_previous_callback = self._on_previous
+        self.ids.playback_controls.on_volume_click_callback = self._show_volume_sheet
+
+        # Bind to album art loading events
+        self.ids.album_art.bind(on_load=self._on_image_load)
+
 
     def _on_image_load(self, _instance):
         """Handle image load event."""
@@ -132,8 +95,8 @@ class NowPlayingScreen(MDScreen):
             track_data: Dictionary with track info (name, artists, album, images)
         """
         if not track_data:
-            self.top_bar.track_name_label.text = "No track playing"
-            self.album_art.source = ""
+            self.ids.top_bar.ids.track_name_label.text = "No track playing"
+            self.ids.album_art.source = ""
             return
 
         # Update artist names
@@ -142,7 +105,7 @@ class NowPlayingScreen(MDScreen):
 
         # Update track name
         track_name = track_data.get("name", "Unknown Track")
-        self.top_bar.track_name_label.text = " - ".join([track_name, artist_names])
+        self.ids.top_bar.ids.track_name_label.text = " - ".join([track_name, artist_names])
 
         # Update album info
         album = track_data.get("album", {})
@@ -150,9 +113,9 @@ class NowPlayingScreen(MDScreen):
         # Update album art - prefer medium size image (index 1) for better quality
         images = album.get("images", [])
         if images:
-            self.album_art.source = images[0]["url"]
+            self.ids.album_art.source = images[0]["url"]
         else:
-            self.album_art.source = ""
+            self.ids.album_art.source = ""
 
     def update_progress(self, current_pos_ms: int, duration_ms: int):
         """
@@ -162,7 +125,7 @@ class NowPlayingScreen(MDScreen):
             current_pos_ms: Current position in milliseconds
             duration_ms: Total duration in milliseconds
         """
-        self.progress_bar.update_progress(current_pos_ms, duration_ms)
+        self.ids.progress_bar.update_progress(current_pos_ms, duration_ms)
 
     def set_playing_state(self, is_playing: bool):
         """
@@ -171,7 +134,7 @@ class NowPlayingScreen(MDScreen):
         Args:
             is_playing: True if track is playing, False otherwise
         """
-        self.playback_controls.set_playing_state(is_playing)
+        self.ids.playback_controls.set_playing_state(is_playing)
 
     def on_touch_down(self, touch):
         """Handle touch down for swipe detection."""

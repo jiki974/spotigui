@@ -7,6 +7,11 @@ from kivymd.uix.label import MDLabel
 from kivy.uix.image import AsyncImage
 from kivy.properties import ObjectProperty, DictProperty
 from kivy.logger import Logger
+from kivy.lang import Builder
+from kivy.clock import Clock
+
+# Load the KV file
+Builder.load_file("src/spotigui/widgets/playlist_tile.kv")
 
 
 class PlaylistTile(MDCard):
@@ -26,22 +31,22 @@ class PlaylistTile(MDCard):
         super().__init__(**kwargs)
         self.playlist_data = playlist_data
         self.on_playlist_select = on_select
-        self.orientation = "horizontal"
-        self.padding = "15dp"
-        self.spacing = "15dp"
-        self.size_hint = (1, None)
-        self.elevation = 4
-        self.radius = [15, 15, 15, 15]
-        self.ripple_behavior = True
-        self.md_bg_color = (1, 1, 1, 1)  # White background
-        self.style = "elevated"
+        Logger.info(f"PlaylistTile.__init__: Received playlist data: {playlist_data.get('name', 'NO NAME')}")
+        # Build content after the widget is fully initialized
+        Clock.schedule_once(lambda dt: self._build_content(), 0)
 
-        # Create layout for tile content
-        content_layout = MDBoxLayout(orientation="horizontal", spacing="15dp")
+    def _build_content(self):
+        """Build the tile content with playlist data."""
+        if not hasattr(self, 'ids') or 'content_layout' not in self.ids:
+            # IDs not ready yet, try again
+            Clock.schedule_once(lambda dt: self._build_content(), 0.1)
+            return
+
+        Logger.info(f"PlaylistTile._build_content: Building content for playlist: {self.playlist_data}")
 
         # Add playlist cover image if available
-        images = playlist_data.get("images", [])
-        Logger.info(f"PlaylistTile: Playlist '{playlist_data.get('name', 'Unknown')}' has {len(images)} images")
+        images = self.playlist_data.get("images", [])
+        Logger.info(f"PlaylistTile._build_content: Playlist '{self.playlist_data.get('name', 'Unknown')}' has {len(images)} images")
 
         if images and len(images) > 0:
             # Try to get the URL, handling both dict and direct URL cases
@@ -64,7 +69,7 @@ class PlaylistTile(MDCard):
                     nocache=False
                 )
                 image_container.add_widget(image)
-                content_layout.add_widget(image_container)
+                self.ids.content_layout.add_widget(image_container)
             else:
                 Logger.warning("PlaylistTile: No valid image URL found")
                 # Placeholder if no image URL with background
@@ -80,7 +85,7 @@ class PlaylistTile(MDCard):
                     font_size="36sp",
                 )
                 placeholder_container.add_widget(placeholder)
-                content_layout.add_widget(placeholder_container)
+                self.ids.content_layout.add_widget(placeholder_container)
         else:
             Logger.info("PlaylistTile: No images array found")
             # Placeholder if no images with background
@@ -96,7 +101,7 @@ class PlaylistTile(MDCard):
                 font_size="36sp",
             )
             placeholder_container.add_widget(placeholder)
-            content_layout.add_widget(placeholder_container)
+            self.ids.content_layout.add_widget(placeholder_container)
 
         # Add playlist info (name and optional track count)
         info_layout = MDBoxLayout(
@@ -104,7 +109,7 @@ class PlaylistTile(MDCard):
             spacing="5dp"
         )
 
-        playlist_name = playlist_data.get("name", "Unknown Playlist")
+        playlist_name = self.playlist_data.get("name", "Unknown Playlist")
         name_label = MDLabel(
             text=playlist_name,
             size_hint_y=None,
@@ -117,7 +122,7 @@ class PlaylistTile(MDCard):
         info_layout.add_widget(name_label)
 
         # Add track count as subtitle
-        track_count = playlist_data.get("tracks", {}).get("total", 0)
+        track_count = self.playlist_data.get("tracks", {}).get("total", 0)
         if track_count:
             subtitle = MDLabel(
                 text=f"{track_count} tracks",
@@ -130,9 +135,7 @@ class PlaylistTile(MDCard):
             )
             info_layout.add_widget(subtitle)
 
-        content_layout.add_widget(info_layout)
-
-        self.add_widget(content_layout)
+        self.ids.content_layout.add_widget(info_layout)
 
     def on_press(self, press):
         return super(PlaylistTile, self).on_press(press)

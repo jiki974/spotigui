@@ -1,0 +1,25 @@
+<HomeScreen>:
+    name: "home"
+
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: "10dp"
+        padding: "10dp"
+        md_bg_color: 1, 1, 1, 1
+
+        MDLabel:
+            text: "Your Playlists"
+            size_hint_y: None
+            height: "60dp"
+            halign: "left"
+
+        MDScrollView:
+            size_hint: 1, 1
+
+            MDBoxLayout:
+                id: playlists_list
+                orientation: "vertical"
+                spacing: "15dp"
+                size_hint_y: None
+                padding: "10dp"
+                height: self.minimum_height

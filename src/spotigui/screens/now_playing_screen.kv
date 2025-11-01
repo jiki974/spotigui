@@ -1,0 +1,50 @@
+#:import TopBarWidget spotigui.widgets.topbar.TopBarWidget
+#:import PlaybackControlsWidget spotigui.widgets.playback_controls.PlaybackControlsWidget
+#:import ProgressBarWidget spotigui.widgets.progress_bar.ProgressBarWidget
+
+<NowPlayingScreen>:
+    name: "now_playing"
+    md_bg_color: 1, 1, 1, 1
+
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: "5dp"
+        padding: "5dp"
+        md_bg_color: 1, 1, 1, 1
+
+        TopBarWidget:
+            id: top_bar
+            show_back_button: True
+            show_device_button: True
+
+        # Album art section
+        FloatLayout:
+            height: "480dp"
+
+            MDLoadingIndicator:
+                id: spinner
+                pos_hint: {"center_x": .5, "center_y": .5}
+                shape_size: dp(200)
+
+            AsyncImage:
+                id: album_art
+                source: ""
+                loading_image: 'data/images/transparent.png'
+                size_hint: 1, 1
+                fit_mode: "cover"
+                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                allow_stretch: True
+                nocache: False
+                mipmap: True
+                on_load: 
+                    spinner.stop()
+                    spinner.opacity = 0
+                on_source:
+                    spinner.opacity = 1
+                    spinner.start()
+
+        PlaybackControlsWidget:
+            id: playback_controls
+
+        ProgressBarWidget:
+            id: progress_bar

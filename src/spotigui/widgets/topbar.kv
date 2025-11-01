@@ -1,0 +1,24 @@
+<TopBarWidget>:
+    orientation: "horizontal"
+    spacing: "10dp"
+    size_hint_y: None
+    height: "36dp"
+
+    # Left side container
+    BoxLayout:
+        id: left_container
+        size_hint_x: 0.15
+
+    # Track name label (center)
+    MDLabel:
+        id: track_name_label
+        text: "No track playing"
+        halign: "center"
+        valign: "center"
+        size_hint_x: 0.7
+        font_size: "18sp"
+
+    # Right side container
+    BoxLayout:
+        id: right_container
+        size_hint_x: 0.15
