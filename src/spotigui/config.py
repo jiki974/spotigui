@@ -21,6 +21,9 @@ WINDOW_HEIGHT = 720
 # Spotify API settings
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID", "")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET", "")
+# Redirect URI - use http://localhost:8888/callback for local development
+# For production with Cloudflare Tunnel, set this to your tunnel URL, e.g.:
+# SPOTIFY_REDIRECT_URI=https://your-tunnel.trycloudflare.com/callback
 SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI", "http://localhost:8888/callback")
 
 # OAuth scopes required for the application

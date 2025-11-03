@@ -1,0 +1,42 @@
+<LoginScreen>:
+    name: "login"
+
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: dp(20)
+        spacing: dp(20)
+        md_bg_color: app.theme_cls.backgroundColor
+
+        # Top spacer
+        Widget:
+            size_hint_y: 0.1
+
+        # Title and instructions
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: dp(10)
+            size_hint_y: None
+            height: dp(80)
+
+            MDLabel:
+                text: root.status_text
+                halign: "center"
+                theme_text_color: "Secondary"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+        # QR Code container
+        MDBoxLayout:
+            orientation: "vertical"
+            size_hint: None, None
+            size: dp(400), dp(400)
+            pos_hint: {"center_x": 0.5}
+
+            Image:
+                id: qr_code_image
+                texture: root.qr_image
+
+
+        # Bottom spacer
+        Widget:
+            size_hint_y: 0.2

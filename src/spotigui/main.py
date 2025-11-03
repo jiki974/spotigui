@@ -13,6 +13,7 @@ from kivymd.uix.screenmanager import MDScreenManager
 
 from spotigui.config import WINDOW_WIDTH, WINDOW_HEIGHT, APP_NAME, DEFAULT_PLAYLISTS_COUNT, DEFAULT_DEVICE_NAME
 from spotigui.spotify_api import SpotifyAPI
+from spotigui.screens.login_screen import LoginScreen
 from spotigui.screens.home_screen import HomeScreen
 from spotigui.screens.now_playing_screen import NowPlayingScreen
 
@@ -29,6 +30,7 @@ class SpotiGuiApp(MDApp):
         super().__init__(**kwargs)
         self.title = APP_NAME
         self.spotify_api = SpotifyAPI()
+        self.login_screen = None
         self.home_screen = None
         self.now_playing_screen = None
         self.screen_manager = None
@@ -50,6 +52,10 @@ class SpotiGuiApp(MDApp):
 
         # Create screen manager
         self.screen_manager = MDScreenManager()
+
+        # Create and add login screen
+        self.login_screen = LoginScreen(spotify_api=self.spotify_api)
+        self.screen_manager.add_widget(self.login_screen)
 
         # Create and add home screen (playlists)
         self.home_screen = HomeScreen(
@@ -74,36 +80,86 @@ class SpotiGuiApp(MDApp):
         )
         self.screen_manager.add_widget(self.now_playing_screen)
 
-        # Set home screen as default
-        self.screen_manager.current = "home"
+        # Start with login screen (will check auth in on_start)
+        self.screen_manager.current = "login"
 
         return self.screen_manager
 
     def on_start(self):
         """Called when app is starting."""
-        # Authenticate with Spotify in a background thread
-        auth_thread = threading.Thread(target=self._authenticate_spotify, daemon=True)
+        # Check authentication in background thread
+        auth_thread = threading.Thread(target=self._check_and_setup_auth, daemon=True)
         auth_thread.start()
 
-    def _authenticate_spotify(self):
-        """Authenticate with Spotify API."""
-        if self.spotify_api.authenticate():
-            # Fetch initial playlists (schedule on main thread)
-            self._load_playlists_trigger()
+    def _check_and_setup_auth(self):
+        """Check if already authenticated, or show login screen."""
+        # Initialize OAuth manager (without opening browser)
+        self.spotify_api.init_oauth_manager(open_browser=False)
 
-            # Get available devices and select the default one
-            devices = self.spotify_api.get_available_devices()
-            if devices:
-                self.current_device_id = self._select_default_device(devices)
-
-            # Start polling for playback state
-            self.stop_polling = False
-            self.playback_poll_thread = threading.Thread(
-                target=self._poll_playback_state, daemon=True
-            )
-            self.playback_poll_thread.start()
+        # Check if already authenticated (from cache)
+        if self.spotify_api.check_auth_complete():
+            Logger.info("SpotiGUI: Already authenticated from cache")
+            # Already authenticated, proceed to home screen
+            Clock.schedule_once(lambda dt: self._on_auth_complete(), 0)
         else:
-            Logger.error("SpotiGUI: Failed to authenticate with Spotify")
+            Logger.info("SpotiGUI: Not authenticated, showing login screen")
+            # Not authenticated, show login screen with QR code
+            auth_url = self.spotify_api.get_auth_url()
+            if auth_url:
+                Clock.schedule_once(
+                    lambda dt: self._show_login_screen(auth_url), 0
+                )
+            else:
+                Logger.error("SpotiGUI: Failed to generate auth URL")
+
+    @mainthread
+    def _show_login_screen(self, auth_url: str):
+        """Display login screen with QR code."""
+        # Switch to login screen first so widget tree is built
+        self.screen_manager.current = "login"
+
+        # Set auth URL after screen is displayed (small delay to ensure widgets are ready)
+        Clock.schedule_once(lambda dt: self._setup_login_screen(auth_url), 0.1)
+
+    def _setup_login_screen(self, auth_url: str):
+        """Set up login screen with QR code after widgets are ready."""
+        self.login_screen.set_auth_url(auth_url)
+        self.login_screen.start_auth_check(self.spotify_api.check_auth_complete)
+
+    def on_auth_complete(self):
+        """Called when authentication is complete."""
+        self._on_auth_complete()
+
+    def _on_auth_complete(self):
+        """Handle successful authentication."""
+        Logger.info("SpotiGUI: Authentication complete, initializing app")
+
+        # Stop login screen polling
+        if self.login_screen:
+            self.login_screen.stop_auth_check()
+
+        # Fetch initial playlists (schedule on main thread)
+        self._load_playlists_trigger()
+
+        # Get available devices and select the default one
+        devices = self.spotify_api.get_available_devices()
+        if devices:
+            self.current_device_id = self._select_default_device(devices)
+
+        # Start polling for playback state
+        self.stop_polling = False
+        self.playback_poll_thread = threading.Thread(
+            target=self._poll_playback_state, daemon=True
+        )
+        self.playback_poll_thread.start()
+
+        # Navigate to home screen
+        Clock.schedule_once(lambda dt: self._navigate_to_home(), 0.5)
+
+    @mainthread
+    def _navigate_to_home(self):
+        """Navigate to home screen."""
+        self.screen_manager.current = "home"
 
     def _select_default_device(self, devices):
         """

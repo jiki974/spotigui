@@ -3,6 +3,8 @@ kivy>=2.3.0
 https://github.com/kivymd/KivyMD/archive/master.zip
 spotipy>=2.23.0
 python-dotenv>=1.0.0
+qrcode>=7.4.2
+pillow>=10.0.0
 
 # Development dependencies
 pytest>=7.0
