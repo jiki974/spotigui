@@ -149,8 +149,8 @@ class SpotifyAPI:
                     self.stop_callback_server()
                 return True
 
-            # Check if callback server received authorization code
-            if self.callback_server and self.callback_server.wait_for_callback(timeout=0):
+            # Check if callback server received authorization code (non-blocking)
+            if self.callback_server:
                 code = self.callback_server.wait_for_callback(timeout=0)
                 if code:
                     Logger.info("SpotifyAPI: Authorization code received from callback server")

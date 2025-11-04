@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Top bar widget with back button, title, and device selector."""
 
 from typing import Optional, Callable, List, Dict, Any
@@ -76,10 +77,14 @@ class TopBarWidget(MDBoxLayout):
             device_type = device.get("type", "")
             is_active = device.get("is_active", False)
 
-            # Add checkmark for active device
-            text = f"{'✓ ' if is_active else ''}{device_name}"
+            # Format device name with type
+            text = device_name
             if device_type:
                 text += f" ({device_type})"
+
+            # Add [Active] prefix for active device
+            if is_active:
+                text = f"[Active] {text}"
 
             menu_items.append({
                 "text": text,

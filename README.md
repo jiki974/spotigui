@@ -26,14 +26,19 @@ For touchscreen devices without keyboard, the app uses QR code authentication wi
 
 3. **Update Spotify App Settings**
    - Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-   - Edit your app settings
-   - Add the redirect URI: `https://your-tunnel-url.trycloudflare.com/callback`
+   - Click on your app
+   - Click "Edit Settings"
+   - Under "Redirect URIs", add: `https://your-tunnel-url.trycloudflare.com/callback`
+   - **IMPORTANT**: Click "Add" and then "Save" at the bottom
+   - Verify the URI appears in the list
 
 4. **Update Environment Variable**
-   Create/update `.env` file:
+   Create/update `.env` file with the **EXACT SAME URL**:
    ```bash
    SPOTIFY_REDIRECT_URI=https://your-tunnel-url.trycloudflare.com/callback
    ```
+
+   **⚠️ Critical:** The redirect URI in `.env` must EXACTLY match the one in Spotify Dashboard (including https/http, trailing slashes, etc.)
 
 5. **Run the app**
    ```bash

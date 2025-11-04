@@ -139,14 +139,19 @@ class SpotiGuiApp(MDApp):
             self.login_screen.stop_auth_check()
 
         # Fetch initial playlists (schedule on main thread)
+        Logger.info("SpotiGUI: Loading playlists...")
         self._load_playlists_trigger()
 
         # Get available devices and select the default one
+        Logger.info("SpotiGUI: Getting available devices...")
         devices = self.spotify_api.get_available_devices()
         if devices:
             self.current_device_id = self._select_default_device(devices)
+        else:
+            Logger.warning("SpotiGUI: No Spotify devices found")
 
         # Start polling for playback state
+        Logger.info("SpotiGUI: Starting playback polling...")
         self.stop_polling = False
         self.playback_poll_thread = threading.Thread(
             target=self._poll_playback_state, daemon=True
@@ -154,12 +159,15 @@ class SpotiGuiApp(MDApp):
         self.playback_poll_thread.start()
 
         # Navigate to home screen
+        Logger.info("SpotiGUI: Scheduling navigation to home screen in 0.5s")
         Clock.schedule_once(lambda dt: self._navigate_to_home(), 0.5)
 
     @mainthread
     def _navigate_to_home(self):
         """Navigate to home screen."""
+        Logger.info(f"SpotiGUI: Navigating to home screen (current: {self.screen_manager.current})")
         self.screen_manager.current = "home"
+        Logger.info(f"SpotiGUI: Navigation complete (current: {self.screen_manager.current})")
 
     def _select_default_device(self, devices):
         """

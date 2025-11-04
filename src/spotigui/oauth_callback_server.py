@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 OAuth callback server for handling Spotify OAuth redirects.
 Runs a simple HTTP server to receive the authorization code.
@@ -29,49 +30,90 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
 
                 # Send success response
                 self.send_response(200)
-                self.send_header('Content-type', 'text/html')
+                self.send_header('Content-type', 'text/html; charset=utf-8')
                 self.end_headers()
                 success_html = """
                 <html>
-                <head><title>Authentication Successful</title></head>
-                <body style="font-family: Arial; text-align: center; padding: 50px;">
-                    <h1>✓ Authentication Successful!</h1>
-                    <p>You can close this window and return to the app.</p>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Authentication Successful</title>
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                </head>
+                <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #1DB954;">
+                    <h1 style="color: white; font-size: 48px;">✓</h1>
+                    <h2 style="color: white;">Authentication Successful!</h2>
+                    <p style="color: white;">You can close this window and return to the app.</p>
                 </body>
                 </html>
                 """
-                self.wfile.write(success_html.encode())
-                Logger.info(f"OAuthServer: Received authorization code")
+                self.wfile.write(success_html.encode('utf-8'))
+                Logger.info("OAuthServer: Authorization code received, authentication will complete shortly")
             elif 'error' in query_params:
                 # Handle OAuth error
                 error = query_params['error'][0]
                 Logger.error(f"OAuthServer: OAuth error: {error}")
 
                 self.send_response(400)
-                self.send_header('Content-type', 'text/html')
+                self.send_header('Content-type', 'text/html; charset=utf-8')
                 self.end_headers()
                 error_html = f"""
                 <html>
-                <head><title>Authentication Failed</title></head>
-                <body style="font-family: Arial; text-align: center; padding: 50px;">
-                    <h1>✗ Authentication Failed</h1>
-                    <p>Error: {error}</p>
-                    <p>Please try again.</p>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Authentication Failed</title>
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                </head>
+                <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #e22134;">
+                    <h1 style="color: white; font-size: 48px;">✗</h1>
+                    <h2 style="color: white;">Authentication Failed</h2>
+                    <p style="color: white;">Error: {error}</p>
+                    <p style="color: white;">Please try again.</p>
                 </body>
                 </html>
                 """
-                self.wfile.write(error_html.encode())
+                self.wfile.write(error_html.encode('utf-8'))
             else:
-                # Unknown request
+                # Unknown request - missing code parameter
+                Logger.warning("OAuthServer: Received callback without 'code' parameter")
                 self.send_response(400)
-                self.send_header('Content-type', 'text/html')
+                self.send_header('Content-type', 'text/html; charset=utf-8')
                 self.end_headers()
-                self.wfile.write(b"Invalid request")
+                invalid_html = """
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Invalid Request</title>
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                </head>
+                <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #ffa500;">
+                    <h1 style="color: white; font-size: 48px;">⚠</h1>
+                    <h2 style="color: white;">Invalid OAuth Callback</h2>
+                    <p style="color: white;">The authorization code was not found.</p>
+                    <p style="color: white;">Please try scanning the QR code again.</p>
+                </body>
+                </html>
+                """
+                self.wfile.write(invalid_html.encode('utf-8'))
 
         except Exception as e:
             Logger.error(f"OAuthServer: Error handling request: {e}")
             self.send_response(500)
+            self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
+            error_page = f"""
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>Server Error</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+            </head>
+            <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+                <h1>Server Error</h1>
+                <p>An error occurred while processing your request.</p>
+            </body>
+            </html>
+            """
+            self.wfile.write(error_page.encode('utf-8'))
 
     def log_message(self, format, *args):
         """Override to use Kivy logger instead of stderr."""

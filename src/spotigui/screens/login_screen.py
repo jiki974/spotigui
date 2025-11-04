@@ -5,6 +5,7 @@ import threading
 from typing import Optional
 
 import qrcode
+from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.image import Image as CoreImage
 from kivy.graphics.texture import Texture
@@ -162,17 +163,21 @@ class LoginScreen(MDScreen):
         """Check if authentication has completed."""
         if hasattr(self, '_check_callback') and self._check_callback():
             # Authentication successful
-            Logger.info("LoginScreen: Authentication successful")
-            self.status_text = "Authentication successful! Loading..."
+            Logger.info("LoginScreen: Authentication successful, redirecting to home screen")
+            self.status_text = "Authentication successful! Loading playlists..."
 
             # Stop checking
             if self._auth_check_event:
                 self._auth_check_event.cancel()
                 self._auth_check_event = None
 
-            # Notify parent app
-            if hasattr(self.manager.parent, 'on_auth_complete'):
-                self.manager.parent.on_auth_complete()
+            # Get the running app and trigger authentication completion
+            app = App.get_running_app()
+            if app and hasattr(app, 'on_auth_complete'):
+                Logger.info("LoginScreen: Calling app.on_auth_complete()")
+                app.on_auth_complete()
+            else:
+                Logger.error("LoginScreen: Cannot navigate - app not available or missing on_auth_complete method")
 
     def stop_auth_check(self):
         """Stop checking for authentication completion."""
