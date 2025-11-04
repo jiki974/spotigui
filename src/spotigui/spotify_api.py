@@ -13,8 +13,11 @@ from kivy.logger import Logger
 from spotigui.config import SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI, SPOTIFY_SCOPES, CACHE_DIR
 from spotigui.oauth_callback_server import OAuthCallbackServer
 
-# Suppress verbose spotipy logging
+# Suppress verbose logging from spotipy and HTTP libraries
 logging.getLogger('spotipy').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
+logging.getLogger('requests').setLevel(logging.WARNING)
+logging.getLogger('http.client').setLevel(logging.WARNING)
 
 class SpotifyAPI:
     """Wrapper around spotipy Spotify Web API client."""

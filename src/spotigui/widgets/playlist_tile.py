@@ -31,7 +31,6 @@ class PlaylistTile(MDCard):
         super().__init__(**kwargs)
         self.playlist_data = playlist_data
         self.on_playlist_select = on_select
-        Logger.info(f"PlaylistTile.__init__: Received playlist data: {playlist_data.get('name', 'NO NAME')}")
         # Build content after the widget is fully initialized
         Clock.schedule_once(lambda dt: self._build_content(), 0)
 
@@ -42,16 +41,13 @@ class PlaylistTile(MDCard):
             Clock.schedule_once(lambda dt: self._build_content(), 0.1)
             return
 
-        Logger.info(f"PlaylistTile._build_content: Building content for playlist: {self.playlist_data}")
 
         # Add playlist cover image if available
         images = self.playlist_data.get("images", [])
-        Logger.info(f"PlaylistTile._build_content: Playlist '{self.playlist_data.get('name', 'Unknown')}' has {len(images)} images")
 
         if images and len(images) > 0:
             # Try to get the URL, handling both dict and direct URL cases
             image_url = images[0] if isinstance(images[0], str) else images[0].get("url", "")
-            Logger.info(f"PlaylistTile: Image URL: {image_url[:50] if image_url else 'None'}...")
 
             if image_url:
                 # Create a container for the image with rounded corners effect
@@ -63,8 +59,7 @@ class PlaylistTile(MDCard):
                     source=image_url,
                     size_hint=(None, None),
                     size=("70dp", "70dp"),
-                    allow_stretch=True,
-                    keep_ratio=True,
+                    fit_mode="contain",
                     mipmap=True,
                     nocache=False
                 )
@@ -87,7 +82,7 @@ class PlaylistTile(MDCard):
                 placeholder_container.add_widget(placeholder)
                 self.ids.content_layout.add_widget(placeholder_container)
         else:
-            Logger.info("PlaylistTile: No images array found")
+            Logger.error("PlaylistTile: No images array found")
             # Placeholder if no images with background
             placeholder_container = MDBoxLayout(
                 size_hint=(None, None),

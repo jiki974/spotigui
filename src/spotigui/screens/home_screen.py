@@ -71,7 +71,6 @@ class HomeScreen(MDScreen):
         Args:
             playlists: List of playlist dictionaries from Spotify API
         """
-        Logger.info(f"HomeScreen.add_playlists: Adding {len(playlists)} playlists")
 
         if 'playlists_list' not in self.ids:
             Logger.error("HomeScreen.add_playlists: playlists_list not found in ids!")
@@ -80,7 +79,6 @@ class HomeScreen(MDScreen):
         self.ids.playlists_list.clear_widgets()
 
         for playlist in playlists:
-            Logger.info(f"HomeScreen.add_playlists: Creating tile for playlist '{playlist.get('name', 'NO NAME')}'")
             tile = PlaylistTile(
                 playlist_data=playlist,
                 on_select=self._on_playlist_select,

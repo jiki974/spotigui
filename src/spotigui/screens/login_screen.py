@@ -48,10 +48,8 @@ class LoginScreen(MDScreen):
     def _on_qr_image_change(self, instance, value):
         """Handle QR image property changes."""
         if value and hasattr(self, 'ids') and 'qr_spinner' in self.ids:
-            Logger.info("LoginScreen: QR image property changed, stopping spinner")
             self.ids.qr_spinner.stop()
         elif not value and hasattr(self, 'ids') and 'qr_spinner' in self.ids:
-            Logger.info("LoginScreen: QR image cleared, starting spinner")
             self.ids.qr_spinner.start()
 
     def set_auth_url(self, url: str):
@@ -61,9 +59,6 @@ class LoginScreen(MDScreen):
             url: The Spotify OAuth authorization URL
         """
         self.auth_url = url
-        Logger.info(f"LoginScreen: Generating QR code for OAuth URL: {url[:50]}...")
-        Logger.info(f"LoginScreen: Login screen IDs available: {list(self.ids.keys()) if hasattr(self, 'ids') else 'None'}")
-
         # Generate QR code in background thread
         threading.Thread(
             target=self._generate_qr_code,
@@ -79,7 +74,6 @@ class LoginScreen(MDScreen):
         """
         try:
             # Create QR code
-            Logger.info("LoginScreen: try to create qr code")
 
             qr = qrcode.QRCode(
                 version=1,
@@ -105,7 +99,6 @@ class LoginScreen(MDScreen):
                 0
             )
 
-            Logger.info("LoginScreen: QR code generated successfully")
 
         except Exception as e:
             Logger.error(f"LoginScreen: Failed to generate QR code: {e}")
@@ -122,15 +115,11 @@ class LoginScreen(MDScreen):
         """
         try:
             # Create CoreImage from bytes
-            Logger.info(f"LoginScreen: Creating CoreImage from {len(img_data)} bytes")
             data = io.BytesIO(img_data)
             core_image = CoreImage(data, ext='png')
 
-            Logger.info(f"LoginScreen: CoreImage created, texture: {core_image.texture}")
-
             # Set the property - the KV binding will update the widget automatically
             self.qr_image = core_image.texture
-            Logger.info(f"LoginScreen: QR code image property set to: {self.qr_image}")
 
         except Exception as e:
             Logger.error(f"LoginScreen: Failed to update QR image: {e}")
@@ -163,7 +152,7 @@ class LoginScreen(MDScreen):
         """Check if authentication has completed."""
         if hasattr(self, '_check_callback') and self._check_callback():
             # Authentication successful
-            Logger.info("LoginScreen: Authentication successful, redirecting to home screen")
+          
             self.status_text = "Authentication successful! Loading playlists..."
 
             # Stop checking
@@ -174,7 +163,6 @@ class LoginScreen(MDScreen):
             # Get the running app and trigger authentication completion
             app = App.get_running_app()
             if app and hasattr(app, 'on_auth_complete'):
-                Logger.info("LoginScreen: Calling app.on_auth_complete()")
                 app.on_auth_complete()
             else:
                 Logger.error("LoginScreen: Cannot navigate - app not available or missing on_auth_complete method")
