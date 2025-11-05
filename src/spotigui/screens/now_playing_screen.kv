@@ -9,74 +9,90 @@
     MDNavigationLayout:
         MDScreenManager:
             MDScreen:
-                md_bg_color: 1, 1, 1, 1
+                # Full-screen album art background
+                FloatLayout:
+                    # Background image
+                    AsyncImage:
+                        id: album_art
+                        source: ""
+                        size_hint: 1, 1
+                        fit_mode: "cover"
+                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                        nocache: False
+                        mipmap: True
+                        anim_delay: -1
+                        opacity: 0
+                        on_load:
+                            self.opacity = 1
+                            spinner.opacity = 0
+                            spinner.active = False
+                        on_source:
+                            self.opacity = 0
+                            spinner.opacity = 1
+                            spinner.active = True
 
-                MDBoxLayout:
-                    orientation: "vertical"
-                    md_bg_color: 1, 1, 1, 1
+                    # Loading spinner
+                    MDLoadingIndicator:
+                        id: spinner
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        size_hint: None, None
+                        size: dp(48), dp(48)
+                        active: False
 
-                    TopBarWidget:
-                        id: top_bar
+                    # Semi-transparent overlay for better text readability
+                    Widget:
+                        canvas.before:
+                            Color:
+                                rgba: 0, 0, 0, 0.3
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
 
-                    # Album art section
-                    FloatLayout:
-                        MDLoadingIndicator:
-                            id: spinner
-                            pos_hint: {"center_x": .5, "center_y": .5}
-                            shape_size: dp(200)
-
-                        AsyncImage:
-                            id: album_art
-                            source: ""
-                            size_hint: 1, 1
-                            fit_mode: "contain"
-                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                            nocache: False
-                            mipmap: True
-                            anim_delay: -1
-                            opacity: 0
-                            on_load:
-                                self.opacity = 1
-                                spinner.stop()
-                                spinner.opacity = 0
-                            on_source:
-                                self.opacity = 0
-                                spinner.opacity = 1
-                                spinner.start()
-
-                    # Progress bar section (outside bottom sheet)
+                    # Content overlay
                     MDBoxLayout:
                         orientation: "vertical"
-                        size_hint_y: None
-                        height: dp(40)
-                        padding: "16dp", "8dp"
-                        spacing: "4dp"
 
-                        ProgressBar:
-                            id: progress_bar
-                            value: 0
-                            max: 100
-                            size_hint_y: None
-                            height: dp(4)
+                        TopBarWidget:
+                            id: top_bar
 
+                        # Spacer to push progress bar to bottom
+                        Widget:
+
+                        # Progress bar section (at bottom, above navigation)
                         MDBoxLayout:
-                            spacing: "10dp"
+                            orientation: "vertical"
                             size_hint_y: None
-                            height: dp(16)
+                            height: dp(50)
+                            padding: "16dp", "12dp"
+                            spacing: "4dp"
 
-                            MDLabel:
-                                id: current_time_label
-                                text: "00:00"
-                                size_hint_x: 0.2
-                                halign: "left"
-                                font_size: "10sp"
+                            ProgressBar:
+                                id: progress_bar
+                                value: 0
+                                max: 100
+                                size_hint_y: None
+                                height: dp(4)
 
-                            MDLabel:
-                                id: time_remaining_label
-                                text: "00:00"
-                                size_hint_x: 0.8
-                                halign: "right"
-                                font_size: "10sp"
+                            MDBoxLayout:
+                                spacing: "10dp"
+                                size_hint_y: None
+                                height: dp(18)
+
+                                MDLabel:
+                                    id: current_time_label
+                                    text: "00:00"
+                                    size_hint_x: 0.2
+                                    halign: "left"
+                                    font_size: "11sp"
+                                    color: 1, 1, 1, 1
+
+                                MDLabel:
+                                    id: time_remaining_label
+                                    text: "00:00"
+                                    size_hint_x: 0.8
+                                    halign: "right"
+                                    font_size: "11sp"
+                                    color: 1, 1, 1, 1
 
         # Modal bottom sheet for playback controls
         MDBottomSheet:
