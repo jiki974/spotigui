@@ -3,6 +3,7 @@
     spacing: "10dp"
     size_hint_y: None
     height: "36dp"
+    md_bg_color: 0, 0, 0, 0.3
 
     # Left side with back button
     MDIconButton:
@@ -11,10 +12,12 @@
         font_size: "32sp"
         pos_hint: {"center_y": 0.5}
         on_press: root._on_back(self)
+        text_color: "white"
 
     # Track name label (center)
     MDLabel:
         id: track_name_label
+        text_color:"white"
         text: "No track playing"
         halign: "center"
         valign: "center"
@@ -28,3 +31,4 @@
         font_size: "32sp"
         pos_hint: {"center_y": 0.5}
         on_press: root._on_device_button_press(self)
+        text_color: "white"

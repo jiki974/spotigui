@@ -46,9 +46,12 @@ class SpotiGuiApp(MDApp):
 
     def build(self):
         """Build the application UI."""
+        
+        self.icon = 'icon.png'
+
         # Set theme to light mode with white background
         self.theme_cls.theme_style = "Light"
-        self.theme_cls.primary_palette = "Purple"
+        self.theme_cls.primary_palette = "Lightpink"
 
         # Create screen manager
         self.screen_manager = MDScreenManager()
