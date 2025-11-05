@@ -50,16 +50,15 @@ class PlaylistTile(MDCard):
             image_url = images[0] if isinstance(images[0], str) else images[0].get("url", "")
 
             if image_url:
-                # Create a container for the image with rounded corners effect
+                # Create a container for the image (larger for grid layout)
                 image_container = MDBoxLayout(
-                    size_hint=(None, None),
-                    size=("70dp", "70dp")
+                    size_hint=(1, None),
+                    height="220dp"
                 )
                 image = AsyncImage(
                     source=image_url,
-                    size_hint=(None, None),
-                    size=("70dp", "70dp"),
-                    fit_mode="contain",
+                    size_hint=(1, 1),
+                    fit_mode="cover",
                     mipmap=True,
                     nocache=False
                 )
@@ -69,15 +68,15 @@ class PlaylistTile(MDCard):
                 Logger.warning("PlaylistTile: No valid image URL found")
                 # Placeholder if no image URL with background
                 placeholder_container = MDBoxLayout(
-                    size_hint=(None, None),
-                    size=("70dp", "70dp"),
+                    size_hint=(1, None),
+                    height="20dp",
                     md_bg_color=(0.95, 0.95, 0.95, 1)
                 )
                 placeholder = MDLabel(
                     text="♫",
                     halign="center",
                     valign="center",
-                    font_size="36sp",
+                    font_size="48sp",
                 )
                 placeholder_container.add_widget(placeholder)
                 self.ids.content_layout.add_widget(placeholder_container)
@@ -85,15 +84,15 @@ class PlaylistTile(MDCard):
             Logger.error("PlaylistTile: No images array found")
             # Placeholder if no images with background
             placeholder_container = MDBoxLayout(
-                size_hint=(None, None),
-                size=("70dp", "70dp"),
+                size_hint=(1, None),
+                height="320dp",
                 md_bg_color=(0.95, 0.95, 0.95, 1)
             )
             placeholder = MDLabel(
                 text="♫",
                 halign="center",
                 valign="center",
-                font_size="36sp",
+                font_size="48sp",
             )
             placeholder_container.add_widget(placeholder)
             self.ids.content_layout.add_widget(placeholder_container)
@@ -101,18 +100,24 @@ class PlaylistTile(MDCard):
         # Add playlist info (name and optional track count)
         info_layout = MDBoxLayout(
             orientation="vertical",
-            spacing="5dp"
+            spacing="2dp",
+            size_hint_y=None,
+            height="50dp",
+            padding=("5dp", "0dp", "5dp", "0dp")
         )
 
         playlist_name = self.playlist_data.get("name", "Unknown Playlist")
         name_label = MDLabel(
             text=playlist_name,
             size_hint_y=None,
-            height="30dp",
+            height="28dp",
             bold=True,
             halign="left",
-            valign="center",
-            font_size="16sp",
+            valign="top",
+            font_size="14sp",
+            max_lines=2,
+            shorten=True,
+            shorten_from="right"
         )
         info_layout.add_widget(name_label)
 
@@ -122,10 +127,10 @@ class PlaylistTile(MDCard):
             subtitle = MDLabel(
                 text=f"{track_count} tracks",
                 size_hint_y=None,
-                height="20dp",
+                height="18dp",
                 halign="left",
-                valign="center",
-                font_size="12sp",
+                valign="top",
+                font_size="11sp",
                 theme_text_color="Secondary"
             )
             info_layout.add_widget(subtitle)

@@ -82,8 +82,6 @@ class HomeScreen(MDScreen):
             tile = PlaylistTile(
                 playlist_data=playlist,
                 on_select=self._on_playlist_select,
-                size_hint_y=None,
-                height="100dp"
             )
             self.ids.playlists_list.add_widget(tile)
 

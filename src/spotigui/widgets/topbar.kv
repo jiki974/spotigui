@@ -2,7 +2,7 @@
     orientation: "horizontal"
     spacing: "10dp"
     size_hint_y: None
-    height: "36dp"
+    height: "48dp"
     md_bg_color: 0, 0, 0, 0.3
 
     # Left side with back button
@@ -12,23 +12,26 @@
         font_size: "32sp"
         pos_hint: {"center_y": 0.5}
         on_press: root._on_back(self)
-        text_color: "white"
+        theme_icon_color: "Custom"
+        icon_color: 1, 1, 1, 1
 
     # Track name label (center)
     MDLabel:
         id: track_name_label
-        text_color:"white"
         text: "No track playing"
         halign: "center"
         valign: "center"
         size_hint_x: 0.7
-        font_size: "32sp"
+        font_size: "14sp"
+        theme_text_color: "Custom"
+        text_color: 1, 1, 1, 1
 
-    # Right side  with device button
+    # Right side with device button
     MDIconButton:
         id: device_btn
         icon: "cast"
         font_size: "32sp"
         pos_hint: {"center_y": 0.5}
         on_press: root._on_device_button_press(self)
-        text_color: "white"
+        theme_icon_color: "Custom"
+        icon_color: 1, 1, 1, 1
