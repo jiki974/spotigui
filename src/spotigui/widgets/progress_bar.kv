@@ -1,19 +1,17 @@
 <ProgressBarWidget>:
     orientation: "vertical"
-    spacing: "5dp"
-    padding: "5dp"
     size_hint_y: None
-    height: "50dp"
+    height: dp(24)
 
     ProgressBar:
         id: progress_bar
         value: 0
         max: 100
-        size_hint_y: 0.4
+        size_hint_y: 0.6
 
     MDBoxLayout:
         spacing: "10dp"
-        size_hint_y: 0.6
+        size_hint_y: 0.4
 
         MDLabel:
             id: current_time_label

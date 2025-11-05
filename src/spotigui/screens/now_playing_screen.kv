@@ -1,50 +1,155 @@
 #:import TopBarWidget spotigui.widgets.topbar.TopBarWidget
-#:import PlaybackControlsWidget spotigui.widgets.playback_controls.PlaybackControlsWidget
-#:import ProgressBarWidget spotigui.widgets.progress_bar.ProgressBarWidget
+#:import MDBottomSheetDragHandle kivymd.uix.bottomsheet.MDBottomSheetDragHandle
+#:import MDBottomSheetDragHandleTitle kivymd.uix.bottomsheet.MDBottomSheetDragHandleTitle
+#:import MDBottomSheetDragHandleButton kivymd.uix.bottomsheet.MDBottomSheetDragHandleButton
 
 <NowPlayingScreen>:
     name: "now_playing"
-    md_bg_color: 1, 1, 1, 1
 
-    MDBoxLayout:
-        orientation: "vertical"
-        spacing: "5dp"
-        padding: "5dp"
-        md_bg_color: 1, 1, 1, 1
+    MDNavigationLayout:
+        MDScreenManager:
+            MDScreen:
+                md_bg_color: 1, 1, 1, 1
 
-        TopBarWidget:
-            id: top_bar
+                MDBoxLayout:
+                    orientation: "vertical"
+                    md_bg_color: 1, 1, 1, 1
 
-        # Album art section
-        FloatLayout:
-            height: "520dp"
+                    TopBarWidget:
+                        id: top_bar
 
-            MDLoadingIndicator:
-                id: spinner
-                pos_hint: {"center_x": .5, "center_y": .5}
-                shape_size: dp(200)
+                    # Album art section
+                    FloatLayout:
+                        MDLoadingIndicator:
+                            id: spinner
+                            pos_hint: {"center_x": .5, "center_y": .5}
+                            shape_size: dp(200)
 
-            AsyncImage:
-                id: album_art
-                source: ""
-                size_hint: 1, 1
-                fit_mode: "contain"
-                pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                nocache: False
-                mipmap: True
-                anim_delay: -1
-                opacity: 0
-                on_load:
-                    self.opacity = 1
-                    spinner.stop()
-                    spinner.opacity = 0
-                on_source:
-                    self.opacity = 0
-                    spinner.opacity = 1
-                    spinner.start()
+                        AsyncImage:
+                            id: album_art
+                            source: ""
+                            size_hint: 1, 1
+                            fit_mode: "contain"
+                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                            nocache: False
+                            mipmap: True
+                            anim_delay: -1
+                            opacity: 0
+                            on_load:
+                                self.opacity = 1
+                                spinner.stop()
+                                spinner.opacity = 0
+                            on_source:
+                                self.opacity = 0
+                                spinner.opacity = 1
+                                spinner.start()
 
-        PlaybackControlsWidget:
-            id: playback_controls
+                    # Progress bar section (outside bottom sheet)
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        size_hint_y: None
+                        height: dp(40)
+                        padding: "16dp", "8dp"
+                        spacing: "4dp"
 
-        ProgressBarWidget:
-            id: progress_bar
+                        ProgressBar:
+                            id: progress_bar
+                            value: 0
+                            max: 100
+                            size_hint_y: None
+                            height: dp(4)
+
+                        MDBoxLayout:
+                            spacing: "10dp"
+                            size_hint_y: None
+                            height: dp(16)
+
+                            MDLabel:
+                                id: current_time_label
+                                text: "00:00"
+                                size_hint_x: 0.2
+                                halign: "left"
+                                font_size: "10sp"
+
+                            MDLabel:
+                                id: time_remaining_label
+                                text: "00:00"
+                                size_hint_x: 0.8
+                                halign: "right"
+                                font_size: "10sp"
+
+        # Modal bottom sheet for playback controls
+        MDBottomSheet:
+            id: playback_bottom_sheet
+            sheet_type: "modal"
+            size_hint_y: None
+            height: dp(120)
+
+            MDBottomSheetDragHandle:
+                drag_handle_color: "lightgrey"
+
+                MDBottomSheetDragHandleTitle:
+                    text: "Playback Controls"
+                    adaptive_height: True
+                    pos_hint: {"center_y": 0.5}
+
+                MDBottomSheetDragHandleButton:
+                    icon: "close"
+                    on_release: playback_bottom_sheet.set_state("toggle")
+
+            # Playback controls content
+            MDBoxLayout:
+                id: playback_content
+                orientation: "horizontal"
+                padding: "16dp"
+                spacing: "8dp"
+                size_hint_y: None
+                height: dp(64)
+
+                # Volume button
+                AnchorLayout:
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    size_hint_x: 0.15
+
+                    MDIconButton:
+                        id: volume_btn
+                        icon: "volume-high"
+                        on_press: root._on_volume_click(self)
+
+                # Previous button
+                AnchorLayout:
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    size_hint_x: 0.2
+
+                    MDIconButton:
+                        id: prev_btn
+                        icon: "skip-previous"
+                        on_press: root._on_previous(self)
+
+                # Play/Pause button
+                AnchorLayout:
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    size_hint_x: 0.3
+
+                    MDIconButton:
+                        id: play_pause_btn
+                        icon: "pause" if root.is_playing else "play"
+                        on_press: root._on_play_pause(self)
+
+                # Next button
+                AnchorLayout:
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    size_hint_x: 0.2
+
+                    MDIconButton:
+                        id: next_btn
+                        icon: "skip-next"
+                        on_press: root._on_next(self)
+
+                # Spacer for symmetry
+                Widget:
+                    size_hint_x: 0.15

@@ -48,7 +48,7 @@ class SpotiGuiApp(MDApp):
         """Build the application UI."""
         # Set theme to light mode with white background
         self.theme_cls.theme_style = "Light"
-        self.theme_cls.primary_palette = "Blue"
+        self.theme_cls.primary_palette = "Purple"
 
         # Create screen manager
         self.screen_manager = MDScreenManager()
@@ -80,10 +80,18 @@ class SpotiGuiApp(MDApp):
         )
         self.screen_manager.add_widget(self.now_playing_screen)
 
-        # Start with login screen (will check auth in on_start)
-        self.screen_manager.current = "login"
+        # Don't set initial screen yet - will be determined by auth check in on_start
+        # Login screen is added first, so it will be the default current screen
+
+        # Add touch coordinate logging
+        self.screen_manager.bind(on_touch_down=self._log_touch)
 
         return self.screen_manager
+
+    def _log_touch(self, instance, touch):
+        """Log touch coordinates for debugging."""
+        Logger.info(f"Touch: x={int(touch.x)}, y={int(touch.y)}")
+        return False  # Don't consume the touch event
 
     def on_start(self):
         """Called when app is starting."""
