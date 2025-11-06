@@ -5,8 +5,6 @@ from kivymd.uix.screen import MDScreen
 from kivy.lang import Builder
 from kivy.properties import BooleanProperty
 
-from spotigui.widgets.volume_sheet import VolumeControlWidget
-
 # Load the KV file
 Builder.load_file("src/spotigui/screens/now_playing_screen.kv")
 
@@ -15,6 +13,7 @@ class NowPlayingScreen(MDScreen):
     """Now Playing screen displaying current track and playback controls."""
 
     is_playing = BooleanProperty(False)
+    is_muted = BooleanProperty(False)
 
     def __init__(
         self,
@@ -236,34 +235,15 @@ class NowPlayingScreen(MDScreen):
         if self.on_previous_callback:
             self.on_previous_callback()
 
-    def _on_volume_click(self, _instance):
-        """Handle volume button click."""
-        self._show_volume_sheet()
+    def _on_mute_toggle_click(self, _instance):
+        """Handle mute/unmute button click."""
+        # Toggle mute state
+        new_mute_state = not self.is_muted
+        self.is_muted = new_mute_state
 
-    def _show_volume_sheet(self):
-        """Show the volume control bottom sheet."""
-        from kivymd.uix.bottomsheet import MDBottomSheet
-
-        # Create fresh volume widget each time (prevents parent conflict)
-        volume_widget = VolumeControlWidget(
-            on_volume_change=self._on_volume_change,
-            on_mute_toggle=self._on_mute_toggle,
-        )
-
-        # Create bottom sheet each time (KivyMD best practice)
-        bottom_sheet = MDBottomSheet()
-        bottom_sheet.add_widget(volume_widget)
-        bottom_sheet.set_state("open")
-
-    def _on_volume_change(self, volume: int):
-        """Handle volume change."""
-        if self.on_volume_change_callback:
-            self.on_volume_change_callback(volume)
-
-    def _on_mute_toggle(self, is_muted: bool):
-        """Handle mute toggle."""
+        # Call the mute toggle callback
         if self.on_mute_toggle_callback:
-            self.on_mute_toggle_callback(is_muted)
+            self.on_mute_toggle_callback(new_mute_state)
 
     def _on_device_select(self, device_id: str):
         """Handle device selection."""

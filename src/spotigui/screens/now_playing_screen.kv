@@ -125,7 +125,7 @@
                 size_hint_y: None
                 height: dp(64)
 
-                # Volume button
+                # Volume button (mute/unmute)
                 AnchorLayout:
                     anchor_x: "center"
                     anchor_y: "center"
@@ -133,8 +133,8 @@
 
                     MDIconButton:
                         id: volume_btn
-                        icon: "volume-high"
-                        on_press: root._on_volume_click(self)
+                        icon: "volume-mute" if root.is_muted else "volume-high"
+                        on_press: root._on_mute_toggle_click(self)
 
                 # Previous button
                 AnchorLayout:
