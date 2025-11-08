@@ -1,0 +1,34 @@
+<TrackProgressWidget>:
+    orientation: "vertical"
+    size_hint_y: None
+    height: dp(50)
+    padding: "16dp", "12dp"
+    spacing: "4dp"
+
+    ProgressBar:
+        id: progress_bar
+        value: root.progress_value
+        max: 100
+        size_hint_y: None
+        height: dp(4)
+
+    MDBoxLayout:
+        spacing: "10dp"
+        size_hint_y: None
+        height: dp(18)
+
+        MDLabel:
+            id: current_time_label
+            text: root.current_time_text
+            size_hint_x: 0.2
+            halign: "left"
+            font_size: "11sp"
+            color: 1, 1, 1, 1
+
+        MDLabel:
+            id: time_remaining_label
+            text: root.time_remaining_text
+            size_hint_x: 0.8
+            halign: "right"
+            font_size: "11sp"
+            color: 1, 1, 1, 1

@@ -46,7 +46,6 @@ class SpotiGuiApp(MDApp):
 
     def build(self):
         """Build the application UI."""
-        
         self.icon = 'icon.png'
 
         # Set theme to light mode with white background
@@ -75,7 +74,6 @@ class SpotiGuiApp(MDApp):
             on_pause=self._on_pause,
             on_next=self._on_next,
             on_previous=self._on_previous,
-            on_volume_change=self._on_volume_change,
             on_mute_toggle=self._on_mute_toggle,
             on_device_select=self._on_device_select,
             on_device_refresh=self._on_device_refresh,
@@ -85,8 +83,6 @@ class SpotiGuiApp(MDApp):
 
         # Don't set initial screen yet - will be determined by auth check in on_start
         # Login screen is added first, so it will be the default current screen
-
-
         return self.screen_manager
 
 
@@ -286,16 +282,6 @@ class SpotiGuiApp(MDApp):
         """Handle previous track action."""
         thread = threading.Thread(
             target=lambda: self.spotify_api.previous_track(self.current_device_id), daemon=True
-        )
-        thread.start()
-
-    def _on_volume_change(self, volume: int):
-        """Handle volume change."""
-        self.mute_volume = volume
-        self.is_muted = False
-        thread = threading.Thread(
-            target=lambda: self.spotify_api.set_volume(volume, self.current_device_id),
-            daemon=True,
         )
         thread.start()
 

@@ -3,7 +3,6 @@
 from typing import Optional, Callable, Dict, Any
 from kivymd.uix.screen import MDScreen
 from kivy.lang import Builder
-from kivy.properties import BooleanProperty
 
 # Load the KV file
 Builder.load_file("src/spotigui/screens/now_playing_screen.kv")
@@ -12,16 +11,12 @@ Builder.load_file("src/spotigui/screens/now_playing_screen.kv")
 class NowPlayingScreen(MDScreen):
     """Now Playing screen displaying current track and playback controls."""
 
-    is_playing = BooleanProperty(False)
-    is_muted = BooleanProperty(False)
-
     def __init__(
         self,
         on_play: Optional[Callable] = None,
         on_pause: Optional[Callable] = None,
         on_next: Optional[Callable] = None,
         on_previous: Optional[Callable] = None,
-        on_volume_change: Optional[Callable] = None,
         on_mute_toggle: Optional[Callable] = None,
         on_device_select: Optional[Callable] = None,
         on_device_refresh: Optional[Callable] = None,
@@ -36,23 +31,22 @@ class NowPlayingScreen(MDScreen):
             on_pause: Callback when pause is pressed
             on_next: Callback when next is pressed
             on_previous: Callback when previous is pressed
-            on_volume_change: Callback when volume changes
             on_mute_toggle: Callback when mute is toggled
             on_device_select: Callback when device is selected
             on_device_refresh: Callback to refresh device list
             on_back_to_playlists: Callback to navigate back to playlists
         """
-        super().__init__(**kwargs)
+        # Store callbacks BEFORE calling super().__init__ because KV file is loaded during super().__init__
+        self.on_device_select_callback = on_device_select
+        self.on_device_refresh_callback = on_device_refresh
+        self.on_back_to_playlists_callback = on_back_to_playlists
 
+        # Store callbacks for playback controls widget
         self.on_play_callback = on_play
         self.on_pause_callback = on_pause
         self.on_next_callback = on_next
         self.on_previous_callback = on_previous
-        self.on_volume_change_callback = on_volume_change
         self.on_mute_toggle_callback = on_mute_toggle
-        self.on_device_select_callback = on_device_select
-        self.on_device_refresh_callback = on_device_refresh
-        self.on_back_to_playlists_callback = on_back_to_playlists
 
         # Store swipe and tap tracking
         self.touch_start_pos = {}
@@ -61,7 +55,7 @@ class NowPlayingScreen(MDScreen):
         self.max_tap_duration = 0.3  # Max duration for tap (in seconds)
         self.max_tap_distance = 10  # Max distance for tap (in pixels)
 
-        # Volume widget will be created fresh each time it's shown
+        super().__init__(**kwargs)
 
     def on_kv_post(self, base_widget):
         """Called after the KV file has been applied."""
@@ -72,14 +66,12 @@ class NowPlayingScreen(MDScreen):
         self.ids.top_bar.on_device_select_callback = self._on_device_select
         self.ids.top_bar.on_device_refresh_callback = self._on_device_refresh
 
-        # Bind to album art loading events
-        self.ids.album_art.bind(on_load=self._on_image_load)
-
-
-    def _on_image_load(self, _instance):
-        """Handle image load event."""
-        # This can be used for custom loading handling if needed
-        pass
+        # Set up playback controls callbacks
+        self.ids.playback_bottom_sheet.on_play_callback = self.on_play_callback
+        self.ids.playback_bottom_sheet.on_pause_callback = self.on_pause_callback
+        self.ids.playback_bottom_sheet.on_next_callback = self.on_next_callback
+        self.ids.playback_bottom_sheet.on_previous_callback = self.on_previous_callback
+        self.ids.playback_bottom_sheet.on_mute_toggle_callback = self.on_mute_toggle_callback
 
     def update_track_info(self, track_data: Dict[str, Any]):
         """
@@ -119,38 +111,7 @@ class NowPlayingScreen(MDScreen):
             current_pos_ms: Current position in milliseconds
             duration_ms: Total duration in milliseconds
         """
-        current_sec = current_pos_ms // 1000
-        duration_sec = duration_ms // 1000
-
-        # Update current position
-        self.ids.current_time_label.text = self._format_time(current_sec)
-
-        # Update progress bar
-        if duration_sec > 0:
-            progress_percent = (current_sec / duration_sec) * 100
-            self.ids.progress_bar.value = progress_percent
-
-            # Calculate and update time remaining
-            remaining_sec = duration_sec - current_sec
-            self.ids.time_remaining_label.text = self._format_time(remaining_sec)
-        else:
-            self.ids.progress_bar.value = 0
-            self.ids.time_remaining_label.text = "00:00"
-
-    @staticmethod
-    def _format_time(seconds: int) -> str:
-        """
-        Format seconds to MM:SS format.
-
-        Args:
-            seconds: Number of seconds
-
-        Returns:
-            Formatted time string (MM:SS)
-        """
-        minutes = seconds // 60
-        secs = seconds % 60
-        return f"{minutes:02d}:{secs:02d}"
+        self.ids.track_progress.update_progress(current_pos_ms, duration_ms)
 
     def set_playing_state(self, is_playing: bool):
         """
@@ -159,7 +120,7 @@ class NowPlayingScreen(MDScreen):
         Args:
             is_playing: True if track is playing, False otherwise
         """
-        self.is_playing = is_playing
+        self.ids.playback_bottom_sheet.set_playing_state(is_playing)
 
     def on_touch_down(self, touch):
         """Handle touch down for swipe and tap detection."""
@@ -189,10 +150,12 @@ class NowPlayingScreen(MDScreen):
                 if abs(dx) > self.min_swipe_distance and abs(dy) < abs(dx) / 2:
                     if dx > 0:
                         # Swipe right - next track
-                        self._on_next(None)
+                        if self.on_next_callback:
+                            self.on_next_callback()
                     elif dx < 0:
                         # Swipe left - previous track
-                        self._on_previous(None)
+                        if self.on_previous_callback:
+                            self.on_previous_callback()
                 # Detect single tap (short duration, minimal movement)
                 elif distance < self.max_tap_distance and duration < self.max_tap_duration:
                     # Single tap - open bottom sheet
@@ -205,45 +168,6 @@ class NowPlayingScreen(MDScreen):
             return True
 
         return super(NowPlayingScreen, self).on_touch_up(touch)
-
-    def _on_play_pause(self, _instance):
-        """Handle play/pause button press."""
-        if self.is_playing:
-            if self.on_pause_callback:
-                self.on_pause_callback()
-        else:
-            if self.on_play_callback:
-                self.on_play_callback()
-
-    def _on_play(self, _instance=None):
-        """Handle play action."""
-        if self.on_play_callback:
-            self.on_play_callback()
-
-    def _on_pause(self, _instance=None):
-        """Handle pause action."""
-        if self.on_pause_callback:
-            self.on_pause_callback()
-
-    def _on_next(self, _instance=None):
-        """Handle next track action."""
-        if self.on_next_callback:
-            self.on_next_callback()
-
-    def _on_previous(self, _instance=None):
-        """Handle previous track action."""
-        if self.on_previous_callback:
-            self.on_previous_callback()
-
-    def _on_mute_toggle_click(self, _instance):
-        """Handle mute/unmute button click."""
-        # Toggle mute state
-        new_mute_state = not self.is_muted
-        self.is_muted = new_mute_state
-
-        # Call the mute toggle callback
-        if self.on_mute_toggle_callback:
-            self.on_mute_toggle_callback(new_mute_state)
 
     def _on_device_select(self, device_id: str):
         """Handle device selection."""
@@ -263,8 +187,4 @@ class NowPlayingScreen(MDScreen):
 
     def open_playback_sheet(self):
         """Open the playback bottom sheet."""
-        self.ids.playback_bottom_sheet.set_state("open")
-
-    def close_playback_sheet(self):
-        """Close the playback bottom sheet."""
-        self.ids.playback_bottom_sheet.set_state("close")
+        self.ids.playback_bottom_sheet.open_sheet()

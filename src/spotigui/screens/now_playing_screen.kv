@@ -1,175 +1,57 @@
 #:import TopBarWidget spotigui.widgets.topbar.TopBarWidget
-#:import MDBottomSheetDragHandle kivymd.uix.bottomsheet.MDBottomSheetDragHandle
-#:import MDBottomSheetDragHandleTitle kivymd.uix.bottomsheet.MDBottomSheetDragHandleTitle
-#:import MDBottomSheetDragHandleButton kivymd.uix.bottomsheet.MDBottomSheetDragHandleButton
+#:import TrackProgressWidget spotigui.widgets.track_progress.TrackProgressWidget
 
 <NowPlayingScreen>:
     name: "now_playing"
 
-    MDNavigationLayout:
-        MDScreenManager:
-            MDScreen:
-                # Full-screen album art background
-                FloatLayout:
-                    # Background image
-                    AsyncImage:
-                        id: album_art
-                        source: ""
-                        size_hint: 1, 1
-                        fit_mode: "cover"
-                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                        nocache: False
-                        mipmap: True
-                        anim_delay: -1
-                        opacity: 0
-                        on_load:
-                            self.opacity = 1
-                            spinner.opacity = 0
-                            spinner.active = False
-                        on_source:
-                            self.opacity = 0
-                            spinner.opacity = 1
-                            spinner.active = True
+    # Full-screen album art background
+    FloatLayout:
+        # Background image
+        AsyncImage:
+            id: album_art
+            source: ""
+            size_hint: 1, 1
+            fit_mode: "cover"
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            nocache: False
+            mipmap: True
+            anim_delay: -1
+            opacity: 0
+            on_load:
+                self.opacity = 1
+                spinner.opacity = 0
+                spinner.active = False
+            on_source:
+                self.opacity = 0
+                spinner.opacity = 1
+                spinner.active = True
 
-                    # Loading spinner
-                    MDLoadingIndicator:
-                        id: spinner
-                        pos_hint: {"center_x": .5, "center_y": .5}
-                        size_hint: None, None
-                        size: dp(48), dp(48)
-                        active: False
-
-                    # Semi-transparent overlay for better text readability
-                    Widget:
-                        canvas.before:
-                            Color:
-                                rgba: 0, 0, 0, 0.3
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-
-                    # Content overlay
-                    MDBoxLayout:
-                        orientation: "vertical"
-
-                        TopBarWidget:
-                            id: top_bar
-                            md_bg_color: 0, 0, 0, 0.3
-                            font_color : "Custom"
+        # Loading spinner
+        MDLoadingIndicator:
+            id: spinner
+            pos_hint: {"center_x": .5, "center_y": .5}
+            size_hint: None, None
+            size: dp(48), dp(48)
+            active: False
 
 
-                        # Spacer to push progress bar to bottom
-                        Widget:
+        # Content overlay
+        MDBoxLayout:
+            orientation: "vertical"
 
-                        # Progress bar section (at bottom, above navigation)
-                        MDBoxLayout:
-                            orientation: "vertical"
-                            size_hint_y: None
-                            height: dp(50)
-                            padding: "16dp", "12dp"
-                            spacing: "4dp"
+            TopBarWidget:
+                id: top_bar
+                md_bg_color: 0, 0, 0, 0.3
+                font_color : "Custom"
 
-                            ProgressBar:
-                                id: progress_bar
-                                value: 0
-                                max: 100
-                                size_hint_y: None
-                                height: dp(4)
 
-                            MDBoxLayout:
-                                spacing: "10dp"
-                                size_hint_y: None
-                                height: dp(18)
+            # Spacer to push progress bar to bottom
+            Widget:
 
-                                MDLabel:
-                                    id: current_time_label
-                                    text: "00:00"
-                                    size_hint_x: 0.2
-                                    halign: "left"
-                                    font_size: "11sp"
-                                    color: 1, 1, 1, 1
-
-                                MDLabel:
-                                    id: time_remaining_label
-                                    text: "00:00"
-                                    size_hint_x: 0.8
-                                    halign: "right"
-                                    font_size: "11sp"
-                                    color: 1, 1, 1, 1
+            # Progress bar section (at bottom, above navigation)
+            TrackProgressWidget:
+                id: track_progress
 
         # Modal bottom sheet for playback controls
-        MDBottomSheet:
+        PlaybackControlsSheet:
             id: playback_bottom_sheet
-            sheet_type: "modal"
-            size_hint_y: None
-            height: dp(120)
-
-            MDBottomSheetDragHandle:
-                drag_handle_color: "lightgrey"
-
-                MDBottomSheetDragHandleTitle:
-                    text: "Playback Controls"
-                    adaptive_height: True
-                    pos_hint: {"center_y": 0.5}
-
-                MDBottomSheetDragHandleButton:
-                    icon: "close"
-                    on_release: playback_bottom_sheet.set_state("toggle")
-
-            # Playback controls content
-            MDBoxLayout:
-                id: playback_content
-                orientation: "horizontal"
-                padding: "16dp"
-                spacing: "8dp"
-                size_hint_y: None
-                height: dp(64)
-
-                # Volume button (mute/unmute)
-                AnchorLayout:
-                    anchor_x: "center"
-                    anchor_y: "center"
-                    size_hint_x: 0.15
-
-                    MDIconButton:
-                        id: volume_btn
-                        icon: "volume-mute" if root.is_muted else "volume-high"
-                        on_press: root._on_mute_toggle_click(self)
-
-                # Previous button
-                AnchorLayout:
-                    anchor_x: "center"
-                    anchor_y: "center"
-                    size_hint_x: 0.2
-
-                    MDIconButton:
-                        id: prev_btn
-                        icon: "skip-previous"
-                        on_press: root._on_previous(self)
-
-                # Play/Pause button
-                AnchorLayout:
-                    anchor_x: "center"
-                    anchor_y: "center"
-                    size_hint_x: 0.3
-
-                    MDIconButton:
-                        id: play_pause_btn
-                        icon: "pause" if root.is_playing else "play"
-                        on_press: root._on_play_pause(self)
-
-                # Next button
-                AnchorLayout:
-                    anchor_x: "center"
-                    anchor_y: "center"
-                    size_hint_x: 0.2
-
-                    MDIconButton:
-                        id: next_btn
-                        icon: "skip-next"
-                        size: "64dp", "64dp"
-                        on_press: root._on_next(self)
-
-                # Spacer for symmetry
-                Widget:
-                    size_hint_x: 0.15

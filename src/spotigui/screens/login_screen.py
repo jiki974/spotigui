@@ -2,13 +2,11 @@
 
 import io
 import threading
-from typing import Optional
 
 import qrcode
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.image import Image as CoreImage
-from kivy.graphics.texture import Texture
 from kivy.logger import Logger
 from kivy.properties import StringProperty, ObjectProperty
 from kivy.lang import Builder
@@ -74,7 +72,6 @@ class LoginScreen(MDScreen):
         """
         try:
             # Create QR code
-
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -92,13 +89,11 @@ class LoginScreen(MDScreen):
             img.save(img_bytes, format='PNG')
             img_bytes.seek(0)
 
-
             # Schedule UI update on main thread
             Clock.schedule_once(
                 lambda dt: self._update_qr_image(img_bytes.getvalue()),
                 0
             )
-
 
         except Exception as e:
             Logger.error(f"LoginScreen: Failed to generate QR code: {e}")
@@ -152,7 +147,6 @@ class LoginScreen(MDScreen):
         """Check if authentication has completed."""
         if hasattr(self, '_check_callback') and self._check_callback():
             # Authentication successful
-          
             self.status_text = "Authentication successful! Loading playlists..."
 
             # Stop checking

@@ -71,7 +71,6 @@ class HomeScreen(MDScreen):
         Args:
             playlists: List of playlist dictionaries from Spotify API
         """
-
         if 'playlists_list' not in self.ids:
             Logger.error("HomeScreen.add_playlists: playlists_list not found in ids!")
             return
