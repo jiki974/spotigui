@@ -1,0 +1,30 @@
+<InitScreen>:
+    name: "init"
+
+    MDBoxLayout:
+        orientation: "vertical"
+        md_bg_color: 1, 1, 1, 1
+        spacing: "20dp"
+        padding: "20dp"
+
+        # Spacer to center content vertically
+        Widget:
+
+        # Loading indicator
+        MDLoadingIndicator:
+            size_hint: None, None
+            size: dp(64), dp(64)
+            pos_hint: {"center_x": 0.5}
+            active: True
+
+        # Status text
+        MDLabel:
+            text: "Initialization..."
+            halign: "center"
+            font_style: "Body"
+            role: "large"
+            size_hint_y: None
+            height: dp(40)
+
+        # Spacer to center content vertically
+        Widget:

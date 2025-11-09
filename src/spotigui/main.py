@@ -13,6 +13,7 @@ from kivymd.uix.screenmanager import MDScreenManager
 
 from spotigui.config import WINDOW_WIDTH, WINDOW_HEIGHT, APP_NAME, DEFAULT_PLAYLISTS_COUNT, DEFAULT_DEVICE_NAME
 from spotigui.spotify_api import SpotifyAPI
+from spotigui.screens.init_screen import InitScreen
 from spotigui.screens.login_screen import LoginScreen
 from spotigui.screens.home_screen import HomeScreen
 from spotigui.screens.now_playing_screen import NowPlayingScreen
@@ -30,6 +31,7 @@ class SpotiGuiApp(MDApp):
         super().__init__(**kwargs)
         self.title = APP_NAME
         self.spotify_api = SpotifyAPI()
+        self.init_screen = None
         self.login_screen = None
         self.home_screen = None
         self.now_playing_screen = None
@@ -54,6 +56,10 @@ class SpotiGuiApp(MDApp):
 
         # Create screen manager
         self.screen_manager = MDScreenManager()
+
+        # Create and add init screen (shown first while checking auth)
+        self.init_screen = InitScreen()
+        self.screen_manager.add_widget(self.init_screen)
 
         # Create and add login screen
         self.login_screen = LoginScreen(spotify_api=self.spotify_api)
@@ -81,8 +87,8 @@ class SpotiGuiApp(MDApp):
         )
         self.screen_manager.add_widget(self.now_playing_screen)
 
-        # Don't set initial screen yet - will be determined by auth check in on_start
-        # Login screen is added first, so it will be the default current screen
+        # Init screen is shown first while checking authentication
+        self.screen_manager.current = "init"
         return self.screen_manager
 
 
