@@ -235,11 +235,13 @@ class SpotiGuiApp(MDApp):
                 if playback:
                     is_playing = playback.get("is_playing", False)
                     progress_ms = playback.get("progress_ms", 0)
-                    item = playback.get("item", {})
-                    duration_ms = item.get("duration_ms", 0)
+                    item = playback.get("item")
 
-                    # Update UI in main thread using mainthread decorator
-                    self._update_playback_ui(is_playing, progress_ms, duration_ms, item)
+                    # Check if item exists (not None)
+                    if item:
+                        duration_ms = item.get("duration_ms", 0)
+                        # Update UI in main thread using mainthread decorator
+                        self._update_playback_ui(is_playing, progress_ms, duration_ms, item)
 
                 time.sleep(1)  # Poll every second
             except Exception as e:

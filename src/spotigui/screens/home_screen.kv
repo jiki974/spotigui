@@ -5,7 +5,7 @@
 
     MDBoxLayout:
         orientation: "vertical"
-        spacing: "5dp"
+        spacing: 0
         padding: 0
         md_bg_color: 1, 1, 1, 1
 
@@ -22,7 +22,7 @@
                 anchor_x: "center"
                 anchor_y: "top"
                 size_hint_y: None
-                height: playlists_list.height
+                height: playlists_list.height + dp(20)
 
                 MDGridLayout:
                     id: playlists_list
@@ -30,5 +30,5 @@
                     spacing: "15dp"
                     size_hint: None, None
                     width: dp(655)
-                    padding: 0
+                    padding: 0, dp(10), 0, dp(10)
                     height: self.minimum_height
