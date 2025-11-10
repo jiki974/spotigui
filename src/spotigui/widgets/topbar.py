@@ -2,7 +2,7 @@
 """Top bar widget with back button, title, and device selector."""
 
 from typing import Optional, Callable, List, Dict, Any
-from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.appbar import MDTopAppBar
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.menu.menu import MDDropdownTextItem  # Explicitly import to register
 from kivy.lang import Builder
@@ -12,7 +12,7 @@ from kivy.properties import StringProperty
 Builder.load_file("src/spotigui/widgets/topbar.kv")
 
 
-class TopBarWidget(MDBoxLayout):
+class TopBarWidget(MDTopAppBar):
     """Top bar widget containing navigation, title, and device controls."""
 
     back_button_icon = StringProperty("arrow-left")
@@ -43,8 +43,7 @@ class TopBarWidget(MDBoxLayout):
         self.font_color = font_color
         self.on_back_callback = on_back
         self.on_device_select_callback = on_device_select
-        self.on_device_refresh_callback = on_device_refresh
-
+        self.on_device_refresh_callback = on_device_refresh# RGBA format (values 0-1)
         # Menu for device selection
         self.device_menu = None
         self.current_devices = []

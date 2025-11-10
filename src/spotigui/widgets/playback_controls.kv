@@ -1,37 +1,19 @@
 <PlaybackControlsSheet>:
     sheet_type: "modal"
     size_hint_y: None
-    height: dp(120)
+    height: dp(90)
 
     MDBoxLayout:
         orientation: "vertical"
         padding: "8dp"
         spacing: "8dp"
 
-        # Header with title and close button
-        MDBoxLayout:
-            size_hint_y: None
-            height: dp(40)
-            spacing: "8dp"
-
-            MDLabel:
-                text: "Playback Controls"
-                font_style: "Title"
-                role: "small"
-                size_hint_x: 0.8
-                halign: "left"
-                valign: "center"
-
-            MDIconButton:
-                icon: "close"
-                size_hint_x: 0.2
-                on_release: root.set_state("toggle")
 
         # Playback controls content
         MDBoxLayout:
             id: playback_content
             orientation: "horizontal"
-            spacing: "8dp"
+            spacing: "16dp"
             size_hint_y: None
             height: dp(64)
 
@@ -39,47 +21,55 @@
             AnchorLayout:
                 anchor_x: "center"
                 anchor_y: "center"
-                size_hint_x: 0.15
+                size_hint_x: 0.25
 
                 MDIconButton:
                     id: volume_btn
                     icon: "volume-mute" if root.is_muted else "volume-high"
+                    theme_font_size: "Custom"
+                    font_size: sp(32)
+                    size: dp(64),dp(64)
                     on_press: root._on_mute_toggle_click(self)
 
             # Previous button
             AnchorLayout:
                 anchor_x: "center"
                 anchor_y: "center"
-                size_hint_x: 0.2
+                size_hint_x: 0.25
 
                 MDIconButton:
                     id: prev_btn
                     icon: "skip-previous"
+                    theme_font_size: "Custom"
+                    font_size: sp(32)
+                    size: dp(64),dp(64)
                     on_press: root._on_previous(self)
 
             # Play/Pause button
             AnchorLayout:
                 anchor_x: "center"
                 anchor_y: "center"
-                size_hint_x: 0.3
+                size_hint_x: 0.25
 
                 MDIconButton:
                     id: play_pause_btn
                     icon: "pause" if root.is_playing else "play"
+                    theme_font_size: "Custom"
+                    font_size: sp(32)
+                    size: dp(64),dp(64)
                     on_press: root._on_play_pause(self)
 
             # Next button
             AnchorLayout:
                 anchor_x: "center"
                 anchor_y: "center"
-                size_hint_x: 0.2
+                size_hint_x: 0.25
+                md_bg_color:"red"
 
                 MDIconButton:
                     id: next_btn
                     icon: "skip-next"
-                    size: "64dp", "64dp"
+                    theme_font_size: "Custom"
+                    font_size: sp(32)
+                    size: dp(64),dp(64)
                     on_press: root._on_next(self)
-
-            # Spacer for symmetry
-            Widget:
-                size_hint_x: 0.15

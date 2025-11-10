@@ -1,37 +1,23 @@
 <TopBarWidget>:
-    orientation: "horizontal"
-    spacing: "10dp"
-    size_hint_y: None
-    height: "48dp"
+    pos_hint: {"center_x": .5, "center_y": .5}
 
 
-    # Left side with back button
-    MDIconButton:
-        id: back_btn
-        icon: root.back_button_icon
-        font_size: "32sp"
-        pos_hint: {"center_y": 0.5}
-        on_press: root._on_back(self)
-        theme_icon_color: root.font_color
-        icon_color: 1, 1, 1, 1
+    MDTopAppBarLeadingButtonContainer:
 
-    # Track name label (center)
-    MDLabel:
+        MDActionTopAppBarButton:
+            id: back_btn
+            icon: root.back_button_icon
+            on_press: root._on_back(self)
+
+
+    MDTopAppBarTitle:
         id: track_name_label
         text: "No track playing"
         halign: "center"
-        valign: "center"
-        size_hint_x: 0.7
-        font_size: "14sp"
-        theme_text_color: root.font_color
-        text_color: 1, 1, 1, 1
 
-    # Right side with device button
-    MDIconButton:
-        id: device_btn
-        icon: "cast"
-        font_size: "32sp"
-        pos_hint: {"center_y": 0.5}
-        on_press: root._on_device_button_press(self)
-        theme_icon_color: root.font_color
-        icon_color: 1, 1, 1, 1
+    MDTopAppBarTrailingButtonContainer:
+
+        MDActionTopAppBarButton:
+            id: device_btn
+            icon: "cast"
+            on_press: root._on_device_button_press(self)
