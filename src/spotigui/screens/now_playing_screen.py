@@ -85,9 +85,12 @@ class NowPlayingScreen(MDScreen):
             self.ids.album_art.source = ""
             return
 
-        # Update artist names
+        # Update artist names - limit to first 3 artists with ellipsis
         artists = track_data.get("artists", [])
-        artist_names = ", ".join([artist.get("name", "") for artist in artists])
+        if len(artists) > 3:
+            artist_names = ", ".join([artist.get("name", "") for artist in artists[:3]]) + " ..."
+        else:
+            artist_names = ", ".join([artist.get("name", "") for artist in artists])
 
         # Update track name
         track_name = track_data.get("name", "Unknown Track")
