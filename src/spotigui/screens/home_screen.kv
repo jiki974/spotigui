@@ -6,7 +6,7 @@
     MDBoxLayout:
         orientation: "vertical"
         spacing: "5dp"
-        padding: "5dp"
+        padding: 0
         md_bg_color: 1, 1, 1, 1
 
         TopBarWidget:
@@ -16,12 +16,19 @@
 
         MDScrollView:
             size_hint: 1, 1
+            do_scroll_x: False
 
-            MDGridLayout:
-                id: playlists_list
-                cols: 2
-                spacing: "15dp"
+            AnchorLayout:
+                anchor_x: "center"
+                anchor_y: "top"
                 size_hint_y: None
-                padding: "10dp"
-                height: self.minimum_height
-                adaptive_height: True
+                height: playlists_list.height
+
+                MDGridLayout:
+                    id: playlists_list
+                    cols: 2
+                    spacing: "15dp"
+                    size_hint: None, None
+                    width: dp(655)
+                    padding: 0
+                    height: self.minimum_height

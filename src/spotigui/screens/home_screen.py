@@ -99,3 +99,13 @@ class HomeScreen(MDScreen):
         """Handle playlist selection."""
         if self.on_playlist_select_callback:
             self.on_playlist_select_callback(playlist_data)
+
+    def update_track_title(self, track_name: str):
+        """
+        Update the topbar title with current track name.
+
+        Args:
+            track_name: Name of the currently playing track
+        """
+        if 'top_bar' in self.ids:
+            self.ids.top_bar.set_track_name(track_name)

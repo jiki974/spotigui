@@ -254,6 +254,10 @@ class SpotiGuiApp(MDApp):
             self.now_playing_screen.set_playing_state(is_playing)
             self.now_playing_screen.update_progress(progress_ms, duration_ms)
             self.now_playing_screen.update_track_info(track_data)
+        # Update home screen topbar if it's the current screen
+        elif self.screen_manager.current == "home" and track_data:
+            track_name = track_data.get("name", "No track playing")
+            self.home_screen.update_track_title(track_name)
 
     @mainthread
     def _update_track_info(self, _dt=None):
