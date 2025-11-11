@@ -5,8 +5,10 @@ from kivymd.uix.bottomsheet import MDBottomSheet
 from kivy.properties import BooleanProperty
 from kivy.lang import Builder
 
+from spotigui import resource_path
+
 # Load the KV file
-Builder.load_file("src/spotigui/widgets/playback_controls.kv")
+Builder.load_file(resource_path("src/spotigui/widgets/playback_controls.kv"))
 
 
 class PlaybackControlsSheet(MDBottomSheet):

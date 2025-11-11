@@ -12,8 +12,10 @@ from kivy.properties import StringProperty, ObjectProperty
 from kivy.lang import Builder
 from kivymd.uix.screen import MDScreen
 
+from spotigui import resource_path
+
 # Load the KV file
-Builder.load_file("src/spotigui/screens/login_screen.kv")
+Builder.load_file(resource_path("src/spotigui/screens/login_screen.kv"))
 
 
 class LoginScreen(MDScreen):

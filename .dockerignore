@@ -1,0 +1,69 @@
+# Docker ignore file - prevents unnecessary files from being copied to Docker context
+# This speeds up Docker builds
+
+# Virtual environments
+myenv/
+venv/
+env/
+.venv/
+
+# Build output
+build/
+dist/
+dist-rpi/
+*.egg-info/
+*.app
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Git
+.git/
+.gitignore
+
+# Documentation (not needed for build)
+*.md
+!requirements.txt
+
+# Test files
+tests/
+test_*.py
+*_test.py
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Logs
+*.log
+logs/
+.kivy/
+
+# Environment variables (will be added separately)
+.env.example
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Archives
+*.zip
+*.tar.gz
+*.tgz

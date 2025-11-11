@@ -4,8 +4,10 @@ from typing import Optional, Callable, Dict, Any
 from kivymd.uix.screen import MDScreen
 from kivy.lang import Builder
 
+from spotigui import resource_path
+
 # Load the KV file
-Builder.load_file("src/spotigui/screens/now_playing_screen.kv")
+Builder.load_file(resource_path("src/spotigui/screens/now_playing_screen.kv"))
 
 
 class NowPlayingScreen(MDScreen):

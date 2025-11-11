@@ -8,8 +8,10 @@ from kivymd.uix.menu.menu import MDDropdownTextItem  # Explicitly import to regi
 from kivy.lang import Builder
 from kivy.properties import StringProperty
 
+from spotigui import resource_path
+
 # Load the KV file
-Builder.load_file("src/spotigui/widgets/topbar.kv")
+Builder.load_file(resource_path("src/spotigui/widgets/topbar.kv"))
 
 
 class TopBarWidget(MDTopAppBar):

@@ -3,8 +3,10 @@
 from kivymd.uix.screen import MDScreen
 from kivy.lang import Builder
 
+from spotigui import resource_path
+
 # Load the KV file
-Builder.load_file("src/spotigui/screens/init_screen.kv")
+Builder.load_file(resource_path("src/spotigui/screens/init_screen.kv"))
 
 
 class InitScreen(MDScreen):

@@ -5,8 +5,10 @@ from kivymd.uix.card import MDCard
 from kivy.properties import ObjectProperty, DictProperty, StringProperty
 from kivy.lang import Builder
 
+from spotigui import resource_path
+
 # Load the KV file
-Builder.load_file("src/spotigui/widgets/playlist_tile.kv")
+Builder.load_file(resource_path("src/spotigui/widgets/playlist_tile.kv"))
 
 
 class PlaylistTile(MDCard):

@@ -6,10 +6,11 @@ from kivymd.uix.label import MDLabel
 from kivy.lang import Builder
 from kivy.logger import Logger
 
+from spotigui import resource_path
 from spotigui.widgets.playlist_tile import PlaylistTile
 
 # Load the KV file
-Builder.load_file("src/spotigui/screens/home_screen.kv")
+Builder.load_file(resource_path("src/spotigui/screens/home_screen.kv"))
 
 
 class HomeScreen(MDScreen):
