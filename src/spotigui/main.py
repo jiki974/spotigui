@@ -300,20 +300,28 @@ class SpotiGuiApp(MDApp):
     def _on_mute_toggle(self, is_muted: bool):
         """Handle mute toggle."""
         self.is_muted = is_muted
-        if is_muted:
-            # Store current volume and set to 0
-            thread = threading.Thread(
-                target=lambda: self.spotify_api.set_volume(0, self.current_device_id),
-                daemon=True,
-            )
-        else:
-            # Restore previous volume
-            thread = threading.Thread(
-                target=lambda: self.spotify_api.set_volume(
-                    self.mute_volume, self.current_device_id
-                ),
-                daemon=True,
-            )
+
+        def toggle_mute_thread():
+            if is_muted:
+                # Get current volume before muting
+                try:
+                    playback = self.spotify_api.get_current_playback()
+                    if playback and playback.get('device'):
+                        current_vol = playback['device'].get('volume_percent')
+                        if current_vol is not None:
+                            self.mute_volume = current_vol
+                            Logger.info(f"SpotiGUI: Saved current volume: {self.mute_volume}")
+                except Exception as e:
+                    Logger.error(f"SpotiGUI: Error getting current volume: {e}")
+
+                # Set volume to 0
+                self.spotify_api.set_volume(0, self.current_device_id)
+            else:
+                # Restore previous volume
+                Logger.info(f"SpotiGUI: Restoring volume to: {self.mute_volume}")
+                self.spotify_api.set_volume(self.mute_volume, self.current_device_id)
+
+        thread = threading.Thread(target=toggle_mute_thread, daemon=True)
         thread.start()
 
     def _on_playlist_select(self, playlist_data: dict):
