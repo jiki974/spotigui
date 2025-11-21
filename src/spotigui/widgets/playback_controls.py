@@ -4,6 +4,7 @@ from typing import Optional, Callable
 from kivymd.uix.bottomsheet import MDBottomSheet
 from kivy.properties import BooleanProperty
 from kivy.lang import Builder
+from kivy.clock import Clock
 
 from spotigui import resource_path
 
@@ -43,6 +44,8 @@ class PlaybackControlsSheet(MDBottomSheet):
         self.on_next_callback = on_next
         self.on_previous_callback = on_previous
         self.on_mute_toggle_callback = on_mute_toggle
+        
+        self.auto_close_event = None
 
     def set_playing_state(self, is_playing: bool):
         """
@@ -85,3 +88,23 @@ class PlaybackControlsSheet(MDBottomSheet):
     def open_sheet(self):
         """Open the playback bottom sheet."""
         self.set_state("open")
+        self.reset_auto_close_timer()
+
+    def reset_auto_close_timer(self):
+        """Reset the auto-close timer."""
+        if self.auto_close_event:
+            self.auto_close_event.cancel()
+        self.auto_close_event = Clock.schedule_once(lambda dt: self.set_state("close"), 5)
+
+    def on_touch_down(self, touch):
+        """Handle touch down to reset timer."""
+        if self.collide_point(*touch.pos):
+            self.reset_auto_close_timer()
+        return super().on_touch_down(touch)
+
+    def on_dismiss(self):
+        """Called when the sheet is dismissed."""
+        if self.auto_close_event:
+            self.auto_close_event.cancel()
+            self.auto_close_event = None
+        super().on_dismiss()
