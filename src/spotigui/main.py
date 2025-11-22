@@ -105,11 +105,11 @@ class SpotiGuiApp(MDApp):
 
         # Check if already authenticated (from cache)
         if self.spotify_api.check_auth_complete():
-            Logger.info("SpotiGUI: Already authenticated from cache")
+            Logger.debug("SpotiGUI: Already authenticated from cache")
             # Already authenticated, proceed to home screen
             Clock.schedule_once(lambda dt: self._on_auth_complete(), 0)
         else:
-            Logger.info("SpotiGUI: Not authenticated, showing login screen")
+            Logger.debug("SpotiGUI: Not authenticated, showing login screen")
             # Not authenticated, show login screen with QR code
             auth_url = self.spotify_api.get_auth_url()
             if auth_url:
@@ -139,18 +139,18 @@ class SpotiGuiApp(MDApp):
 
     def _on_auth_complete(self):
         """Handle successful authentication."""
-        Logger.info("SpotiGUI: Authentication complete, initializing app")
+        Logger.debug("SpotiGUI: Authentication complete, initializing app")
 
         # Stop login screen polling
         if self.login_screen:
             self.login_screen.stop_auth_check()
 
         # Fetch initial playlists (schedule on main thread)
-        Logger.info("SpotiGUI: Loading playlists...")
+        Logger.debug("SpotiGUI: Loading playlists...")
         self._load_playlists_trigger()
 
         # Get available devices and select the default one
-        Logger.info("SpotiGUI: Getting available devices...")
+        Logger.debug("SpotiGUI: Getting available devices...")
         devices = self.spotify_api.get_available_devices()
         if devices:
             self.current_device_id = self._select_default_device(devices)
@@ -158,7 +158,7 @@ class SpotiGuiApp(MDApp):
             Logger.warning("SpotiGUI: No Spotify devices found")
 
         # Start polling for playback state
-        Logger.info("SpotiGUI: Starting playback polling...")
+        Logger.debug("SpotiGUI: Starting playback polling...")
         self.stop_polling = False
         self.playback_poll_thread = threading.Thread(
             target=self._poll_playback_state, daemon=True
@@ -166,15 +166,13 @@ class SpotiGuiApp(MDApp):
         self.playback_poll_thread.start()
 
         # Navigate to home screen
-        Logger.info("SpotiGUI: Scheduling navigation to home screen in 0.5s")
+        Logger.debug("SpotiGUI: Scheduling navigation to home screen in 0.5s")
         Clock.schedule_once(lambda dt: self._navigate_to_home(), 0.5)
 
     @mainthread
     def _navigate_to_home(self):
         """Navigate to home screen."""
-        Logger.info(f"SpotiGUI: Navigating to home screen (current: {self.screen_manager.current})")
         self.screen_manager.current = "home"
-        Logger.info(f"SpotiGUI: Navigation complete (current: {self.screen_manager.current})")
 
     def _select_default_device(self, devices):
         """
@@ -196,7 +194,7 @@ class SpotiGuiApp(MDApp):
                 device_name = device.get("name", "")
                 if device_name.lower() == DEFAULT_DEVICE_NAME.lower():
                     device_id = device.get("id")
-                    Logger.info(f"SpotiGUI: Selected default device: {device_name} (ID: {device_id})")
+                    Logger.debug(f"SpotiGUI: Selected default device: {device_name} (ID: {device_id})")
                     return device_id
 
             Logger.warning(f"SpotiGUI: Default device '{DEFAULT_DEVICE_NAME}' not found. Using first available device.")
@@ -205,7 +203,7 @@ class SpotiGuiApp(MDApp):
         first_device = devices[0]
         device_name = first_device.get("name", "Unknown")
         device_id = first_device.get("id")
-        Logger.info(f"SpotiGUI: Using first available device: {device_name} (ID: {device_id})")
+        Logger.debug(f"SpotiGUI: Using first available device: {device_name} (ID: {device_id})")
         return device_id
 
     def _load_playlists(self, _dt=None):
@@ -310,7 +308,7 @@ class SpotiGuiApp(MDApp):
                         current_vol = playback['device'].get('volume_percent')
                         if current_vol is not None:
                             self.mute_volume = current_vol
-                            Logger.info(f"SpotiGUI: Saved current volume: {self.mute_volume}")
+                            Logger.debug(f"SpotiGUI: Saved current volume: {self.mute_volume}")
                 except Exception as e:
                     Logger.error(f"SpotiGUI: Error getting current volume: {e}")
 
@@ -318,7 +316,7 @@ class SpotiGuiApp(MDApp):
                 self.spotify_api.set_volume(0, self.current_device_id)
             else:
                 # Restore previous volume
-                Logger.info(f"SpotiGUI: Restoring volume to: {self.mute_volume}")
+                Logger.debug(f"SpotiGUI: Restoring volume to: {self.mute_volume}")
                 self.spotify_api.set_volume(self.mute_volume, self.current_device_id)
 
         thread = threading.Thread(target=toggle_mute_thread, daemon=True)
@@ -350,7 +348,7 @@ class SpotiGuiApp(MDApp):
 
     def _on_device_select(self, device_id: str):
         """Handle device selection."""
-        Logger.info(f"SpotiGUI: Device selected: {device_id}")
+        Logger.debug(f"SpotiGUI: Device selected: {device_id}")
         self.current_device_id = device_id
         # Transfer playback to the selected device
         thread = threading.Thread(
@@ -362,7 +360,7 @@ class SpotiGuiApp(MDApp):
     def _on_device_refresh(self):
         """Handle device refresh request."""
         devices = self.spotify_api.get_available_devices()
-        Logger.info(f"SpotiGUI: Found {len(devices)} devices")
+        Logger.debug(f"SpotiGUI: Found {len(devices)} devices")
         return devices
 
     def on_stop(self):
