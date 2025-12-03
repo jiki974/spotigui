@@ -269,9 +269,15 @@ class SpotiGuiApp(MDApp):
 
     def _on_play(self):
         """Handle play action."""
-        thread = threading.Thread(
-            target=lambda: self.spotify_api.play(self.current_device_id), daemon=True
-        )
+        def play_thread():
+            # Enforce default device if configured
+            if DEFAULT_DEVICE_NAME:
+                devices = self.spotify_api.get_available_devices()
+                self.current_device_id = self._select_default_device(devices)
+            
+            self.spotify_api.play(self.current_device_id)
+
+        thread = threading.Thread(target=play_thread, daemon=True)
         thread.start()
 
     def _on_pause(self):
@@ -327,6 +333,11 @@ class SpotiGuiApp(MDApp):
         playlist_uri = playlist_data.get("uri")
         if playlist_uri:
             def play_playlist():
+                # Enforce default device if configured
+                if DEFAULT_DEVICE_NAME:
+                    devices = self.spotify_api.get_available_devices()
+                    self.current_device_id = self._select_default_device(devices)
+
                 self.spotify_api.play(self.current_device_id, context_uri=playlist_uri)
                 # Update track info after starting playback
                 time.sleep(0.5)  # Brief delay to let playback start
